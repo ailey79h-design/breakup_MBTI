@@ -144,6 +144,9 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        /** 항상 이 경로로 공유·복귀 (루트 `/`는 쿼리가 유실될 수 있음) */
+        const SHARE_PAGE_PATH = '/breakup-mbti.html';
+
         let db, auth, currentUser;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'breakup-mbti-pink';
 
@@ -306,7 +309,7 @@
                 }
             } catch (e) {
                 console.error("Shared result load error:", e);
-                location.href = location.pathname;
+                location.href = SHARE_PAGE_PATH;
             }
         };
 
@@ -543,7 +546,7 @@
                 return;
             }
             const r = encodeSharePayload(lastMbti, lastScores);
-            const url = window.location.origin + window.location.pathname + '?r=' + encodeURIComponent(r);
+            const url = window.location.origin + SHARE_PAGE_PATH + '?r=' + encodeURIComponent(r);
 
             copyToClipboard(url)
                 .then(() => showToast())
