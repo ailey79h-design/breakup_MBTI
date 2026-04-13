@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>말랑 이별 MBTI - 나의 이별 온도</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background-color: #fff5f7; color: #4a5568; overflow-x: hidden; }
+        .pink-gradient { background: linear-gradient(135deg, #ffafbd 0%, #ffc3a0 100%); }
+        .soft-pink-bg { background-color: #fff0f3; }
+        .btn-pink { background: linear-gradient(135deg, #fb7185 0%, #f43f5e 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(251, 113, 133, 0.2); }
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .scale-dot { transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; border: 2px solid #ffe4e6; background: white; }
+        .scale-dot.active-plus { background-color: #fb7185; border-color: #fb7185; transform: scale(1.15); box-shadow: 0 0 15px rgba(251, 113, 133, 0.3); }
+        .scale-dot.active-minus { background-color: #fda4af; border-color: #fda4af; transform: scale(1.15); box-shadow: 0 0 15px rgba(253, 164, 175, 0.3); }
+        .scale-dot.active-neutral { background-color: #e2e8f0; border-color: #cbd5e1; }
+        .progress-bar { height: 6px; background: #ffe4e6; border-radius: 10px; overflow: hidden; }
+        .progress-fill { background: linear-gradient(90deg, #fda4af, #fb7185); transition: width 0.4s ease; }
+        #toast { visibility: hidden; min-width: 200px; background-color: rgba(0,0,0,0.8); color: #fff; text-align: center; border-radius: 30px; padding: 12px 24px; position: fixed; z-index: 1000; left: 50%; transform: translateX(-50%); bottom: 40px; font-size: 14px; opacity: 0; transition: 0.3s; }
+        #toast.show { visibility: visible; opacity: 1; }
+        .modal { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; padding: 20px; }
+        .modal.active { display: flex; animation: fadeIn 0.3s ease; }
+    </style>
+</head>
+<body class="min-h-screen pb-10">
+
+    <div id="app-container" class="max-w-md mx-auto min-h-screen flex flex-col relative px-4">
+
+        <!-- Header -->
+        <header class="py-6 flex items-center justify-between">
+            <div class="flex items-center gap-1 cursor-pointer" onclick="location.reload()">
+                <span class="text-rose-500 text-xl font-black tracking-tighter">B-TYPE 💖</span>
+            </div>
+            <div id="progress-wrapper" class="hidden flex-1 ml-6 flex items-center gap-3">
+                <div class="progress-bar flex-1">
+                    <div id="header-progress" class="progress-fill h-full" style="width: 0%"></div>
+                </div>
+                <span id="progress-text" class="text-[10px] font-bold text-rose-400">0%</span>
+            </div>
+        </header>
+
+        <!-- Home Screen -->
+        <div id="home-screen" class="flex-1 flex flex-col items-center justify-center text-center fade-in">
+            <div class="relative mb-10">
+                <div class="w-32 h-32 bg-white rounded-[3rem] shadow-xl flex items-center justify-center rotate-6">
+                    <span class="text-6xl">🎀</span>
+                </div>
+                <div class="absolute -bottom-2 -right-2 w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center animate-bounce">
+                    <span class="text-xl">💌</span>
+                </div>
+            </div>
+            <h1 class="text-3xl font-800 text-slate-800 mb-4 leading-tight">우리 헤어지던 날,<br><span class="text-rose-500">당신의 온도는?</span></h1>
+            <p class="text-slate-400 text-sm mb-12 leading-relaxed">
+                나만 진심이었을까? 아님 우리 둘 다?<br>
+                12문항으로 알아보는 말랑말랑 이별 성향 테스트
+            </p>
+            <button id="start-btn" class="w-full py-5 btn-pink text-white rounded-3xl font-bold text-xl shadow-xl shadow-rose-200 active:scale-95 transition-transform">
+                테스트 시작하기
+            </button>
+        </div>
+
+        <!-- Test Screen -->
+        <div id="test-screen" class="hidden flex-1 flex flex-col py-4">
+            <div id="question-container" class="space-y-16 pb-32"></div>
+            <div class="fixed bottom-0 left-0 w-full p-6 bg-gradient-to-t from-white via-white to-transparent z-10">
+                <div class="max-w-md mx-auto">
+                    <button id="submit-btn" class="w-full py-5 bg-rose-100 text-rose-300 rounded-3xl font-bold text-lg cursor-not-allowed transition-all">
+                        답변을 모두 체크해줘!
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="hidden flex-1 flex flex-col items-center justify-center text-center">
+            <div class="w-24 h-24 mb-6 relative">
+                <span class="text-5xl absolute inset-0 flex items-center justify-center animate-pulse">💕</span>
+                <div class="absolute inset-0 border-4 border-rose-100 rounded-full border-t-rose-500 animate-spin"></div>
+            </div>
+            <h2 class="text-xl font-bold text-slate-700">마음을 분석하는 중...</h2>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden flex-1 flex flex-col">
+            <div class="text-center mb-8 fade-in">
+                <div class="inline-block px-4 py-1 bg-rose-50 text-rose-400 rounded-full text-[10px] font-bold mb-4">LOVE ARCHIVE #RESULTS</div>
+                <h1 id="result-mbti" class="text-6xl font-black text-rose-500 italic mb-2">...</h1>
+                <h2 id="result-title" class="text-2xl font-bold text-slate-700">성향 분석 중</h2>
+            </div>
+
+            <div id="trait-dashboard" class="space-y-4 mb-8 px-2 fade-in" style="animation-delay: 0.2s"></div>
+
+            <div class="space-y-6 fade-in" style="animation-delay: 0.4s">
+                <div class="glass-card p-6 rounded-[2rem] shadow-sm">
+                    <h3 class="font-bold text-rose-500 mb-3 flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 bg-rose-400 rounded-full"></span> 이별 레시피
+                    </h3>
+                    <div id="result-desc" class="text-slate-500 leading-relaxed text-sm"></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div onclick="window.showTypeDetail('best')" class="bg-blue-50 p-5 rounded-[1.5rem] border border-blue-100 text-center cursor-pointer active:scale-95 transition-transform">
+                        <span class="text-[10px] font-bold text-blue-400 uppercase tracking-tighter">환상의 짝꿍 ❤️</span>
+                        <div id="best-match" class="font-black text-blue-600 mt-1 text-lg">-</div>
+                        <span class="text-[8px] text-blue-300">클릭해서 보기</span>
+                    </div>
+                    <div onclick="window.showTypeDetail('worst')" class="bg-rose-50 p-5 rounded-[1.5rem] border border-rose-100 text-center cursor-pointer active:scale-95 transition-transform">
+                        <span class="text-[10px] font-bold text-rose-400 uppercase tracking-tighter">파멸의 조합 💣</span>
+                        <div id="worst-match" class="font-black text-rose-600 mt-1 text-lg">-</div>
+                        <span class="text-[8px] text-rose-300">클릭해서 보기</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-10 flex flex-col gap-3 pb-10 fade-in" style="animation-delay: 0.6s">
+                <button id="share-link-btn" class="w-full py-5 btn-pink text-white rounded-3xl font-bold shadow-lg shadow-rose-200">결과 링크 복사하기</button>
+                <button onclick="location.reload()" class="w-full py-5 border-2 border-rose-100 text-rose-300 rounded-3xl font-bold">다시 테스트하기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Type Detail Modal -->
+    <div id="type-modal" class="modal" onclick="this.classList.remove('active')">
+        <div class="max-w-xs w-full glass-card p-8 rounded-[2.5rem] shadow-2xl relative" onclick="event.stopPropagation()">
+            <button class="absolute top-4 right-4 text-slate-300" onclick="document.getElementById('type-modal').classList.remove('active')">✕</button>
+            <div id="modal-content" class="text-center">
+                <div id="modal-type-code" class="text-4xl font-black text-rose-500 mb-2 italic">TYPE</div>
+                <h4 id="modal-type-title" class="text-xl font-bold text-slate-700 mb-4">유형 제목</h4>
+                <div id="modal-type-tag" class="inline-block px-3 py-1 bg-rose-50 text-rose-500 text-[10px] font-bold rounded-full mb-4">궁합 설명</div>
+                <p id="modal-type-desc" class="text-sm text-slate-500 leading-relaxed text-center break-keep"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">복사 완료! 친구에게 보내봐 💖</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        let db, auth, currentUser;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'breakup-mbti-pink';
+
+        try {
+            const firebaseConfig = JSON.parse(__firebase_config);
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+        } catch (e) { console.error(e); }
+
+        const questions = [
+            { id: 1, q: "헤어진 직후, 나는 내 감정을 친구들에게 바로 말해야 풀린다.", type: "EI" },
+            { id: 2, q: "혼자 있을 때보다 친구들과 떠들 때 이별이 더 잘 잊혀진다.", type: "EI" },
+            { id: 3, q: "자만추든 소개팅이든 새로운 사람을 만나는 게 최고의 치료제다.", type: "RS" },
+            { id: 4, q: "헤어지고도 전 애인 SNS 염탐은 멈출 수 없다.", type: "HL" },
+            { id: 5, q: "이별 사유를 납득할 때까지 물어보고 대화해야 끝낼 수 있다.", type: "CA" },
+            { id: 6, q: "상대방과 관련된 물건을 버리는 데 아주 오랜 시간이 걸린다.", type: "HL" },
+            { id: 7, q: "힘들 때 밖으로 나가기보단 방 안에서 혼자 침잠하는 편이다.", type: "IE" },
+            { id: 8, q: "조용히 일기를 쓰거나 생각하며 마음을 정리하는 게 편하다.", type: "SR" },
+            { id: 9, q: "헤어지자마자 번호 삭제, SNS 차단이 내 마음의 평화를 가져온다.", type: "LH" },
+            { id: 10, q: "이별 상황의 갈등을 마주하기보다 시간이 해결해주길 기다린다.", type: "AC" },
+            { id: 11, q: "아무리 슬퍼도 상황을 논리적으로 분석하려는 습관이 있다.", type: "AC" },
+            { id: 12, q: "이별은 내 삶의 모든 에너지를 앗아가서 복구에 한참 걸린다.", type: "EI" }
+        ];
+
+        const typeData = {
+            "ERHC": {
+                title: "열정적인 집착 추적자",
+                desc: "이별을 도무지 납득할 수 없어 끝까지 매달리고 이유를 찾는 타입. 감정 폭발과 집착이 동반되어 스스로를 괴롭히기도 해요.",
+                best: "ISLC",
+                worst: "ISLA",
+                bestDetail: "한쪽은 집착하고 싶지만, 상대방의 확실하고 논리적인 설명 덕분에 결국 납득하고 빠르게 정리하게 됩니다.",
+                worstDetail: "한 명은 울며 매달리는데 한 명은 읽씹과 차단으로 응수하는, 이별 과정이 지옥 그 자체인 조합입니다."
+            },
+            "ISLC": {
+                title: "쿨한 이성 주의자",
+                desc: "이미 끝난 인연에 에너지를 낭비하지 않아요. 미련도 없고 정리도 칼 같아서 상대방이 당황할 정도로 깔끔하게 마침표를 찍습니다.",
+                best: "ESLA",
+                worst: "ESHC",
+                bestDetail: "둘 다 미련이 없고 정리가 광속! 서로에게 집착하지 않아 가장 깔끔하고 좋은 추억으로 남을 수 있는 관계입니다.",
+                worstDetail: "감정이 폭발해서 붙잡는 상대방을 냉정하게 차단해버려, 상대에게 평생 씻을 수 없는 상처를 남길 수 있습니다."
+            },
+            "ESLA": {
+                title: "인싸형 긍정왕",
+                desc: "이별은 또 다른 시작! 슬픔을 밖으로 발산하고 새로운 자극을 찾아 떠납니다. 뒤돌아보지 않는 쿨함의 소유자.",
+                best: "ISLC",
+                worst: "ERHC",
+                bestDetail: "서로 '우리 여기까지인가봐' 한마디면 끝. 미련 없이 털고 일어나 각자의 길을 응원하는 쿨한 커플의 정석.",
+                worstDetail: "나는 이미 새로운 사람들과 즐거운데, 상대는 계속해서 감정 섞인 연락을 해오니 온도 차가 너무 커 괴로운 조합."
+            },
+            "ISLA": {
+                title: "해탈한 자유인",
+                desc: "이별의 징조가 보이면 이미 정리를 마친 상태. 상대가 매달려도 읽씹하거나 차갑게 반응할 수 있는 강철 멘탈입니다.",
+                best: "ESLC",
+                worst: "ERHC",
+                bestDetail: "서로의 현실을 인정하고 존중합니다. 감정 싸움 없이 '우린 최선을 다했어'라며 성숙하게 마침표를 찍는 어른들의 이별.",
+                worstDetail: "매달리는 상대방을 철저히 무시하는 스타일. 상대는 벽에 대고 소리치는 기분을 느끼며 파멸에 이르게 됩니다."
+            },
+            "ESLC": {
+                title: "현실적인 로맨티스트",
+                desc: "감정은 풍부하지만 상황이 안 되면 빠르게 인정해요. 이별 후에도 상대의 프라이버시를 존중하며 성숙한 이별을 추구합니다.",
+                best: "ISLA",
+                worst: "ESHA",
+                bestDetail: "슬프지만 안 되는 건 안 되는 것. 서로의 앞날을 진심으로 축복해주며 이별하는 영화 같은 그림이 그려집니다.",
+                worstDetail: "현실을 보려는 나와 감정에만 매몰된 상대. 끝까지 대화가 통하지 않아 서로 진을 다 빼고 헤어지게 됩니다."
+            },
+            "ESHA": {
+                title: "드라마틱 열정형",
+                desc: "매번 이별이 인생 마지막 사랑 같아요. 울고 불고 난리치지만 그만큼 사랑에 진심이었던 타입. 드라마 같은 이별의 주인공.",
+                best: "ISLC",
+                worst: "ESLC",
+                bestDetail: "나의 넘치는 감정을 상대가 논리적으로 잘 받아주어, 상처는 크지만 깨달음을 얻고 헤어지는 관계입니다.",
+                worstDetail: "한 명은 드라마를 찍고 한 명은 다큐를 찍으려 하니, 헤어지는 순간까지 서로의 진심을 오해하게 됩니다."
+            },
+            "ERLA": {
+                title: "빠른 환승 정거장",
+                desc: "감정이 식으면 바로 다음 챕터로 넘어갑니다. 사람을 만나며 잊는 스타일이라 상대가 보기엔 조금 야속할 수 있어요.",
+                best: "IRLC",
+                worst: "ISHA",
+                bestDetail: "서로에게 더 이상 마음이 없음을 빠르게 인정! 질척거림 제로, 뒤끝 제로의 완벽한 쿨바이 조합입니다.",
+                worstDetail: "나는 이미 다음 장으로 넘어갔는데 상대는 아직 1페이지에서 울고 있는 격. 가해자와 피해자 구도가 되기 쉽습니다."
+            },
+            "ISHA": {
+                title: "추억 저장 수호자",
+                desc: "상대는 이미 잊었어도 혼자 과거의 성에 갇혀 사는 스타일. 물건 하나, 장소 하나에도 의미를 부여하며 오래 슬퍼합니다.",
+                best: "ERLC",
+                worst: "ERLA",
+                bestDetail: "나의 긴 미련을 상대의 빠른 회복력이 강제로 끌어당겨줍니다. 덕분에 혼자 남겨지는 시간을 단축할 수 있어요.",
+                worstDetail: "상대는 바로 새 연애를 시작하는데 나만 과거에 멈춰있습니다. 자존감이 바닥까지 떨어지는 최악의 타이밍 조합."
+            },
+            "ERLC": {
+                title: "빛의 속도 회복러",
+                desc: "질척거리는 건 질색! 빠르게 결론 내고 자기 삶으로 돌아갑니다. 이별 후 바로 갓생 살기를 시작하는 스타일.",
+                best: "IRLC",
+                worst: "ISHA",
+                bestDetail: "헤어지자마자 각자 SNS에서 서로를 깔끔하게 지우고 본인 인생 살러 갑니다. 이별 스트레스가 가장 적은 조합.",
+                worstDetail: "상대의 느린 정리 속도가 나를 답답하게 만듭니다. 나는 이미 다음 챕터인데 상대는 여전히 과거형입니다."
+            },
+            "IRLC": {
+                title: "조용한 독립형",
+                desc: "헤어지고 나서 내 일상이 방해받는 게 제일 싫어요. 남몰래 빠르게 정리하고 다시 자기만의 루틴을 찾아갑니다.",
+                best: "ERLC",
+                worst: "ISHA",
+                bestDetail: "서로의 사생활을 존중하며 조용히 끝냅니다. 헤어진 줄도 모르게 조용히, 하지만 확실하게 남이 되는 관계.",
+                worstDetail: "나는 조용히 있고 싶은데 상대는 계속 감정적인 연락을 해옵니다. 나의 평온한 일상이 파괴되는 고통스러운 관계."
+            },
+            "ESHC": {
+                title: "감정 과부하 에너자이저",
+                desc: "사랑도 이별도 에너지가 넘쳐요. 붙잡을 때도 온 힘을 다해 붙잡지만, 차단당하면 또 그만큼 크게 좌절하는 드라마틱한 유형.",
+                best: "ISLC",
+                worst: "ISLC",
+                bestDetail: "폭발하는 내 감정을 상대의 차분함이 진정시켜줍니다. 비록 차갑게 느껴져도 결과적으로는 가장 깔끔한 마무리가 가능해요.",
+                worstDetail: "가장 뜨겁게 매달리는 나와 가장 차갑게 밀어내는 상대. 자존심이 가루가 될 때까지 싸우게 되는 조합입니다."
+            },
+            "IRHA": {
+                title: "속앓이 장인",
+                desc: "말 안 하고 쌓아두다 한계가 오면 펑 터지는 스타일. 상대는 갑작스러운 이별 통보에 당황할 수밖에 없어요.",
+                best: "ISHC",
+                worst: "ESHA",
+                bestDetail: "둘 다 속으로만 삭히다 보니 큰 소리 한 번 안 나고 갑자기 끝이 납니다. 허무할 순 있어도 가장 조용한 이별.",
+                worstDetail: "나는 조용히 끝내고 싶은데 상대는 왜 말 안 했냐며 드라마를 찍습니다. 감정 소모가 극에 달하는 조합입니다."
+            },
+            "ISHC": {
+                title: "철벽 감정 차단기",
+                desc: "한 번 선 넘으면 끝. 상대가 아무리 울며 붙잡아도 감정적으로 전혀 흔들리지 않고 차갑게 선을 긋습니다.",
+                best: "IRHA",
+                worst: "ESHC",
+                bestDetail: "말 많은 것보다 말 없는 것이 낫습니다. 서로 깔끔하게 선을 긋고 더 이상 엮이지 않는 완벽한 타인 모드.",
+                worstDetail: "상대는 울며 불며 매달리는데 나는 이미 마음의 빗장을 걸었습니다. 한 명은 괴물, 한 명은 비련의 주인공이 됩니다."
+            }
+        };
+
+        const init = async () => {
+            if (!auth) return;
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                onAuthStateChanged(auth, (user) => {
+                    currentUser = user;
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('id') && user) loadSharedResult(urlParams.get('id'));
+                });
+            } catch (e) { console.error(e); }
+        };
+
+        const loadSharedResult = async (id) => {
+            if (!db || !currentUser) return;
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('loading-screen').classList.remove('hidden');
+            try {
+                const docSnap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'results', id));
+                if (docSnap.exists()) {
+                    displayResult(docSnap.data().mbti, docSnap.data().scores);
+                    shareableDocId = id;
+                }
+            } catch (e) {
+                console.error("Shared result load error:", e);
+                location.href = location.pathname;
+            }
+        };
+
+        let answers = {};
+        let shareableDocId = null;
+
+        const renderQuestions = () => {
+            const container = document.getElementById('question-container');
+            container.innerHTML = questions.map(q => `
+                <div class="fade-in px-4 text-center">
+                    <h3 class="text-xl font-bold text-slate-800 mb-8 leading-snug break-keep">${q.q}</h3>
+                    <div class="flex items-center justify-between max-w-sm mx-auto">
+                        <span class="text-rose-400 font-bold text-[11px]">완전 인정</span>
+                        <div class="flex items-center gap-2">
+                            <div onclick="window.selectScore(${q.id}, 3, 'plus')" class="scale-dot w-9 h-9 rounded-full" id="dot-${q.id}-p3"></div>
+                            <div onclick="window.selectScore(${q.id}, 2, 'plus')" class="scale-dot w-7 h-7 rounded-full" id="dot-${q.id}-p2"></div>
+                            <div onclick="window.selectScore(${q.id}, 0, 'neutral')" class="scale-dot w-5 h-5 rounded-full" id="dot-${q.id}-n"></div>
+                            <div onclick="window.selectScore(${q.id}, 2, 'minus')" class="scale-dot w-7 h-7 rounded-full" id="dot-${q.id}-m2"></div>
+                            <div onclick="window.selectScore(${q.id}, 3, 'minus')" class="scale-dot w-9 h-9 rounded-full" id="dot-${q.id}-m3"></div>
+                        </div>
+                        <span class="text-slate-300 font-bold text-[11px]">전혀 아님</span>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        window.selectScore = (qId, score, type) => {
+            const suffixes = ['p3', 'p2', 'n', 'm2', 'm3'];
+            suffixes.forEach(s => document.getElementById(`dot-${qId}-${s}`)?.classList.remove('active-plus', 'active-minus', 'active-neutral'));
+            const targetId = type === 'plus' ? `dot-${qId}-p${score}` : (type === 'minus' ? `dot-${qId}-m${score}` : `dot-${qId}-n`);
+            document.getElementById(targetId)?.classList.add(type === 'plus' ? 'active-plus' : (type === 'minus' ? 'active-minus' : 'active-neutral'));
+            answers[qId] = type === 'plus' ? score : (type === 'minus' ? -score : 0);
+            updateProgress();
+        };
+
+        const updateProgress = () => {
+            const count = Object.keys(answers).length;
+            const progress = Math.round((count / questions.length) * 100);
+            const progressBar = document.getElementById('header-progress');
+            const progressText = document.getElementById('progress-text');
+            if (progressBar) progressBar.style.width = progress + '%';
+            if (progressText) progressText.innerText = progress + '%';
+
+            if (count === questions.length) {
+                const btn = document.getElementById('submit-btn');
+                if (btn) {
+                    btn.classList.replace('bg-rose-100', 'btn-pink');
+                    btn.classList.replace('text-rose-300', 'text-white');
+                    btn.classList.remove('cursor-not-allowed');
+                    btn.innerText = "결과 보러가기 ✨";
+                }
+            }
+        };
+
+        const calculateAndSave = async () => {
+            if (Object.keys(answers).length < questions.length) return;
+            document.getElementById('test-screen').classList.add('hidden');
+            document.getElementById('loading-screen').classList.remove('hidden');
+
+            let s = { E: 0, I: 0, R: 0, S: 0, H: 0, L: 0, C: 0, A: 0 };
+            questions.forEach(q => {
+                const v = answers[q.id] || 0;
+                const [l, r] = q.type.split('');
+                if (v > 0) s[l] += v; else if (v < 0) s[r] += Math.abs(v); else { s[l] += 0.5; s[r] += 0.5; }
+            });
+            const mbti = (s.E >= s.I ? "E" : "I") + (s.R >= s.S ? "R" : "S") + (s.H >= s.L ? "H" : "L") + (s.C >= s.A ? "C" : "A");
+
+            try {
+                if (db && currentUser) {
+                    const id = crypto.randomUUID();
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'results', id), {
+                        mbti, scores: s, createdAt: new Date().toISOString(), userId: currentUser.uid
+                    });
+                    shareableDocId = id;
+                }
+            } catch (e) { console.error("Save error:", e); }
+            setTimeout(() => displayResult(mbti, s), 1500);
+        };
+
+        const displayResult = (mbti, s) => {
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('progress-wrapper').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const data = typeData[mbti] || typeData["ERHC"];
+            document.getElementById('result-mbti').innerText = mbti;
+            document.getElementById('result-title').innerText = data.title;
+            document.getElementById('result-desc').innerText = data.desc;
+            document.getElementById('best-match').innerText = data.best;
+            document.getElementById('worst-match').innerText = data.worst;
+
+            const traits = [
+                { l: 'E', r: 'I', label: '표현 방식', sl: '감정 발산', sr: '내면 침잠' },
+                { l: 'R', r: 'S', label: '극복 방식', sl: '새로운 만남', sr: '혼자만의 시간' },
+                { l: 'H', r: 'L', label: '미련 온도', sl: '뜨거운 집착', sr: '차가운 해탈' },
+                { l: 'C', r: 'A', label: '종결 스타일', sl: '확실한 대화', sr: '조용한 회피' }
+            ];
+
+            document.getElementById('trait-dashboard').innerHTML = traits.map(t => {
+                const total = (s[t.l] + s[t.r]) || 1;
+                const lP = Math.round((s[t.l] / total) * 100);
+                return `
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between items-center px-1">
+                            <span class="text-[9px] font-bold text-rose-300 uppercase">${t.sl}</span>
+                            <span class="text-[10px] font-bold text-slate-400">${t.label}</span>
+                            <span class="text-[9px] font-bold text-slate-300 uppercase">${t.sr}</span>
+                        </div>
+                        <div class="h-6 bg-white rounded-full flex overflow-hidden border border-rose-50 shadow-inner relative">
+                            <div class="h-full bg-rose-200 transition-all duration-1000" style="width: ${lP}%"></div>
+                            <div class="absolute inset-0 flex justify-between items-center px-3 pointer-events-none text-[10px] font-black">
+                                <span class="text-rose-500">${lP}%</span>
+                                <span class="text-slate-400">${100 - lP}%</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        };
+
+        window.showTypeDetail = (mode) => {
+            const currentMbti = document.getElementById('result-mbti').innerText;
+            const currentData = typeData[currentMbti] || typeData["ERHC"];
+            const targetMbti = mode === 'best' ? currentData.best : currentData.worst;
+            const targetData = typeData[targetMbti];
+
+            if (!targetData) return;
+
+            document.getElementById('modal-type-code').innerText = targetMbti;
+            document.getElementById('modal-type-title').innerText = targetData.title;
+            document.getElementById('modal-type-tag').innerText = mode === 'best' ? '❤️ 환상의 짝꿍인 이유' : '💣 파멸의 조합인 이유';
+            document.getElementById('modal-type-desc').innerText = mode === 'best' ? currentData.bestDetail : currentData.worstDetail;
+            document.getElementById('type-modal').classList.add('active');
+        };
+
+        document.getElementById('start-btn').onclick = () => {
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('test-screen').classList.remove('hidden');
+            document.getElementById('progress-wrapper').classList.remove('hidden');
+            renderQuestions();
+        };
+
+        document.getElementById('submit-btn').onclick = calculateAndSave;
+
+        const copyToClipboard = (text) => {
+            return new Promise((resolve, reject) => {
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text)
+                        .then(resolve)
+                        .catch(() => {
+                            useExecCommand(text) ? resolve() : reject();
+                        });
+                } else {
+                    useExecCommand(text) ? resolve() : reject();
+                }
+            });
+        };
+
+        const useExecCommand = (text) => {
+            try {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-9999px";
+                textArea.style.top = "0";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                return successful;
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                return false;
+            }
+        };
+
+        document.getElementById('share-link-btn').onclick = () => {
+            if (!shareableDocId) {
+                shareableDocId = crypto.randomUUID();
+            }
+            const url = window.location.origin + window.location.pathname + '?id=' + shareableDocId;
+
+            copyToClipboard(url)
+                .then(() => showToast())
+                .catch(() => {
+                    prompt("복사 기능이 지원되지 않는 환경입니다. 아래 주소를 직접 복사해주세요!", url);
+                });
+        };
+
+        const showToast = () => {
+            const t = document.getElementById('toast');
+            if (t) {
+                t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), 2500);
+            }
+        };
+
+        init();
+    </script>
+</body>
+</html>
