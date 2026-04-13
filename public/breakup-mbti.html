@@ -31,14 +31,9 @@
 
     <div id="app-container" class="max-w-md mx-auto min-h-screen flex flex-col relative px-4">
 
-        <!-- 공유 링크로 결과를 볼 때만 표시 -->
-        <div id="shared-invite-banner" class="hidden w-full text-center px-3 pt-4 pb-4 space-y-3 border-b border-rose-100 bg-white/70 backdrop-blur-sm rounded-b-3xl shadow-sm mb-1">
-            <p class="text-base font-extrabold text-rose-500 break-keep leading-snug">내 이별 mbti는 이거야. </p>
-            <p class="text-lg font-black text-slate-800 tracking-tight">너는? </p>
-            <button type="button" id="shared-take-test-btn" class="w-full py-4 rounded-2xl font-bold text-white btn-pink shadow-lg shadow-rose-200 active:scale-[0.98] transition-transform text-sm">
-                나의 이별 MBTI 확인하러 가기
-            </button>
-        </div>
+        <p id="global-owner-tagline" class="text-center text-sm font-bold text-rose-500 tracking-tight pt-5 pb-1 break-keep">
+            내 이별 mbti는 이거야.
+        </p>
 
         <!-- Header -->
         <header class="py-4 flex items-center justify-between">
@@ -95,7 +90,8 @@
         </div>
 
         <!-- Result Screen -->
-        <div id="result-screen" class="hidden flex-1 flex flex-col">
+        <div id="result-screen" class="hidden flex-1 flex flex-col min-h-[78vh]">
+            <div id="result-main-block" class="flex-1 flex flex-col min-h-0">
             <div class="text-center mb-8 fade-in">
                 <div class="inline-block px-4 py-1 bg-rose-50 text-rose-400 rounded-full text-[10px] font-bold mb-4">LOVE ARCHIVE #RESULTS</div>
                 <h1 id="result-mbti" class="text-6xl font-black text-rose-500 italic mb-2">...</h1>
@@ -125,10 +121,17 @@
                     </div>
                 </div>
             </div>
+            </div>
 
-            <div class="mt-10 flex flex-col gap-3 pb-10 fade-in" style="animation-delay: 0.6s">
+            <div id="result-owner-actions" class="mt-10 flex flex-col gap-3 pb-10 fade-in" style="animation-delay: 0.6s">
                 <button id="share-link-btn" class="w-full py-5 btn-pink text-white rounded-3xl font-bold shadow-lg shadow-rose-200">결과 링크 복사하기</button>
-                <button onclick="location.reload()" class="w-full py-5 border-2 border-rose-100 text-rose-300 rounded-3xl font-bold">다시 테스트하기</button>
+                <button id="retest-btn" type="button" class="w-full py-5 border-2 border-rose-100 text-rose-300 rounded-3xl font-bold">다시 테스트하기</button>
+            </div>
+
+            <div id="shared-take-test-footer" class="hidden shrink-0 pt-6 pb-12 fade-in">
+                <button type="button" id="shared-take-test-btn" class="w-full py-5 btn-pink text-white rounded-3xl font-bold shadow-lg shadow-rose-200 active:scale-[0.98] transition-transform">
+                    나의 이별 MBTI 확인하러 가기
+                </button>
             </div>
         </div>
     </div>
@@ -155,6 +158,8 @@
 
         /** 항상 이 경로로 공유·복귀 (루트 `/`는 쿼리가 유실될 수 있음) */
         const SHARE_PAGE_PATH = '/breakup-mbti.html';
+        /** 링크 공유 시 카톡·복사 미리보기 등에 쓰는 문구 */
+        const SHARE_CLIPBOARD_INTRO = '나의 이별 mbti는 이거야, 너는? ';
 
         let db, auth, currentUser;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'breakup-mbti-pink';
@@ -313,9 +318,8 @@
             try {
                 const docSnap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'results', id));
                 if (docSnap.exists()) {
-                    displayResult(docSnap.data().mbti, docSnap.data().scores);
+                    displayResult(docSnap.data().mbti, docSnap.data().scores, { fromShare: true });
                     shareableDocId = id;
-                    showSharedInviteBanner();
                 }
             } catch (e) {
                 console.error("Shared result load error:", e);
@@ -363,14 +367,6 @@
             }
         }
 
-        function showSharedInviteBanner() {
-            document.getElementById('shared-invite-banner')?.classList.remove('hidden');
-        }
-
-        function hideSharedInviteBanner() {
-            document.getElementById('shared-invite-banner')?.classList.add('hidden');
-        }
-
         function tryOpenSharedFromUrl() {
             const r = new URLSearchParams(window.location.search).get('r');
             if (!r || !r.trim()) return false;
@@ -380,9 +376,8 @@
             document.getElementById('test-screen').classList.add('hidden');
             document.getElementById('loading-screen').classList.add('hidden');
             document.getElementById('progress-wrapper').classList.add('hidden');
-            displayResult(data.m, data.s);
+            displayResult(data.m, data.s, { fromShare: true });
             shareableDocId = null;
-            showSharedInviteBanner();
             return true;
         }
 
@@ -459,7 +454,8 @@
             setTimeout(() => displayResult(mbti, s), 1500);
         };
 
-        const displayResult = (mbti, s) => {
+        const displayResult = (mbti, s, options = {}) => {
+            const fromShare = !!options.fromShare;
             lastMbti = mbti;
             lastScores = { ...s };
             document.getElementById('loading-screen').classList.add('hidden');
@@ -500,6 +496,19 @@
                     </div>
                 `;
             }).join('');
+
+            const owner = document.getElementById('result-owner-actions');
+            const sharedFooter = document.getElementById('shared-take-test-footer');
+            const tagline = document.getElementById('global-owner-tagline');
+            if (fromShare) {
+                owner?.classList.add('hidden');
+                sharedFooter?.classList.remove('hidden');
+                tagline?.classList.add('hidden');
+            } else {
+                owner?.classList.remove('hidden');
+                sharedFooter?.classList.add('hidden');
+                tagline?.classList.remove('hidden');
+            }
         };
 
         window.showTypeDetail = (mode) => {
@@ -518,12 +527,13 @@
         };
 
         document.getElementById('start-btn').onclick = () => {
-            hideSharedInviteBanner();
             document.getElementById('home-screen').classList.add('hidden');
             document.getElementById('test-screen').classList.remove('hidden');
             document.getElementById('progress-wrapper').classList.remove('hidden');
             renderQuestions();
         };
+
+        document.getElementById('retest-btn').onclick = () => location.reload();
 
         document.getElementById('shared-take-test-btn')?.addEventListener('click', () => {
             location.href = SHARE_PAGE_PATH;
@@ -564,18 +574,33 @@
             }
         };
 
-        document.getElementById('share-link-btn').onclick = () => {
+        document.getElementById('share-link-btn').onclick = async () => {
             if (!lastMbti || !lastScores) {
                 showToastMessage('먼저 결과를 확인한 뒤 다시 눌러줘!');
                 return;
             }
             const r = encodeSharePayload(lastMbti, lastScores);
             const url = window.location.origin + SHARE_PAGE_PATH + '?r=' + encodeURIComponent(r);
+            const shareText = `${SHARE_CLIPBOARD_INTRO}\n${url}`;
 
-            copyToClipboard(url)
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: '말랑 이별 MBTI',
+                        text: SHARE_CLIPBOARD_INTRO,
+                        url
+                    });
+                    showToast();
+                    return;
+                } catch (err) {
+                    if (err && err.name === 'AbortError') return;
+                }
+            }
+
+            copyToClipboard(shareText)
                 .then(() => showToast())
                 .catch(() => {
-                    prompt("복사 기능이 지원되지 않는 환경입니다. 아래 주소를 직접 복사해주세요!", url);
+                    prompt("복사 기능이 지원되지 않는 환경입니다. 아래 내용을 직접 복사해주세요!", shareText);
                 });
         };
 
