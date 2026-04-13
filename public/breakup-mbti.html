@@ -148,10 +148,12 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'breakup-mbti-pink';
 
         try {
-            const firebaseConfig = JSON.parse(__firebase_config);
-            const app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+            }
         } catch (e) { console.error(e); }
 
         const questions = [
@@ -310,6 +312,57 @@
 
         let answers = {};
         let shareableDocId = null;
+        let lastMbti = null;
+        let lastScores = null;
+
+        const SCORE_KEYS = ['E', 'I', 'R', 'S', 'H', 'L', 'C', 'A'];
+
+        function encodeSharePayload(mbti, scores) {
+            const s = {};
+            for (const k of SCORE_KEYS) s[k] = Number(scores[k]) || 0;
+            const json = JSON.stringify({ m: mbti, s });
+            const bytes = new TextEncoder().encode(json);
+            let bin = '';
+            for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+            return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+
+        function decodeSharePayload(encoded) {
+            try {
+                if (!encoded || typeof encoded !== 'string') return null;
+                let b64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+                const pad = b64.length % 4;
+                if (pad) b64 += '='.repeat(4 - pad);
+                const binary = atob(b64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                const o = JSON.parse(new TextDecoder().decode(bytes));
+                if (!o || typeof o.m !== 'string' || o.m.length !== 4 || !o.s || typeof o.s !== 'object') return null;
+                const out = {};
+                for (const k of SCORE_KEYS) {
+                    const n = Number(o.s[k]);
+                    if (Number.isNaN(n)) return null;
+                    out[k] = n;
+                }
+                return { m: o.m.toUpperCase(), s: out };
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function tryOpenSharedFromUrl() {
+            const r = new URLSearchParams(window.location.search).get('r');
+            if (!r || !r.trim()) return false;
+            const data = decodeSharePayload(r.trim());
+            if (!data) return false;
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('test-screen').classList.add('hidden');
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('progress-wrapper').classList.add('hidden');
+            displayResult(data.m, data.s);
+            shareableDocId = null;
+            return true;
+        }
 
         const renderQuestions = () => {
             const container = document.getElementById('question-container');
@@ -385,6 +438,8 @@
         };
 
         const displayResult = (mbti, s) => {
+            lastMbti = mbti;
+            lastScores = { ...s };
             document.getElementById('loading-screen').classList.add('hidden');
             document.getElementById('progress-wrapper').classList.add('hidden');
             document.getElementById('result-screen').classList.remove('hidden');
@@ -483,10 +538,12 @@
         };
 
         document.getElementById('share-link-btn').onclick = () => {
-            if (!shareableDocId) {
-                shareableDocId = crypto.randomUUID();
+            if (!lastMbti || !lastScores) {
+                showToastMessage('먼저 결과를 확인한 뒤 다시 눌러줘!');
+                return;
             }
-            const url = window.location.origin + window.location.pathname + '?id=' + shareableDocId;
+            const r = encodeSharePayload(lastMbti, lastScores);
+            const url = window.location.origin + window.location.pathname + '?r=' + encodeURIComponent(r);
 
             copyToClipboard(url)
                 .then(() => showToast())
@@ -495,15 +552,24 @@
                 });
         };
 
+        const defaultCopyToastText = document.getElementById('toast').textContent.trim();
+
         const showToast = () => {
+            showToastMessage(defaultCopyToastText);
+        };
+
+        function showToastMessage(msg) {
             const t = document.getElementById('toast');
             if (t) {
+                t.textContent = msg;
                 t.classList.add('show');
                 setTimeout(() => t.classList.remove('show'), 2500);
             }
-        };
+        }
 
-        init();
+        if (!tryOpenSharedFromUrl()) {
+            init();
+        }
     </script>
 </body>
 </html>
