@@ -31,12 +31,8 @@
 
     <div id="app-container" class="max-w-md mx-auto min-h-screen flex flex-col relative px-4">
 
-        <p id="global-owner-tagline" class="text-center text-sm font-bold text-rose-500 tracking-tight pt-5 pb-1 break-keep">
-            내 이별 mbti는 이거야.
-        </p>
-
         <!-- Header -->
-        <header class="py-4 flex items-center justify-between">
+        <header class="py-6 flex items-center justify-between">
             <div class="flex items-center gap-1 cursor-pointer" onclick="location.reload()">
                 <span class="text-rose-500 text-xl font-black tracking-tighter">B-TYPE 💖</span>
             </div>
@@ -499,15 +495,12 @@
 
             const owner = document.getElementById('result-owner-actions');
             const sharedFooter = document.getElementById('shared-take-test-footer');
-            const tagline = document.getElementById('global-owner-tagline');
             if (fromShare) {
                 owner?.classList.add('hidden');
                 sharedFooter?.classList.remove('hidden');
-                tagline?.classList.add('hidden');
             } else {
                 owner?.classList.remove('hidden');
                 sharedFooter?.classList.add('hidden');
-                tagline?.classList.remove('hidden');
             }
         };
 
