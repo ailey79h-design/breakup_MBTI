@@ -556,11 +556,13 @@
 
             const roast = resultRoast[mbti];
             const roastWrap = document.getElementById('result-roast-wrap');
-            if (roast?.line) {
-                roastWrap.classList.remove('hidden');
+            if (roast) {
                 document.getElementById('result-roast').innerText = roast.line;
-                document.getElementById('result-sub').innerText = roast.sub || '';
+                document.getElementById('result-sub').innerText = roast.sub;
+                roastWrap.classList.remove('hidden');
             } else {
+                document.getElementById('result-roast').innerText = '';
+                document.getElementById('result-sub').innerText = '';
                 roastWrap.classList.add('hidden');
             }
 
