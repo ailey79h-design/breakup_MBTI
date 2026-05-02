@@ -696,6 +696,33 @@
             }
         };
 
+        const bestMatchDesc = (targetData) => `
+둘이 이별하면 이상하게 싸움이 길어지진 않음ㅋㅋ
+
+한 명이 감정 올라가기 전에
+다른 한 명이 적당히 빠져줘서
+"어? 생각보다 깔끔하게 끝났네?" 이 느낌 남음
+
+「${targetData.title}」은 ${targetData.desc}
+
+👉 결론: 서로 덜 상처받고 끝나는 몇 안 되는 조합
+`;
+
+        const worstMatchDesc = (targetData) => `
+이 조합은 이별하면 진짜 지옥 열림ㅋㅋ
+
+한 명은 계속 붙잡고
+한 명은 이미 마음 정리 끝나 있어서
+대화 자체가 안 통함
+
+"왜 저래?" vs "왜 아직 저러지?"
+이 상태로 서로 더 상처만 줌
+
+「${targetData.title}」은 ${targetData.desc}
+
+👉 결론: 타이밍도, 감정도, 방식도 다 안 맞음
+`;
+
         window.showTypeDetail = (mode) => {
             const currentMbti = document.getElementById('result-mbti').innerText;
             const currentData = typeData[currentMbti] || typeData.ERHC;
@@ -707,11 +734,9 @@
             document.getElementById('modal-type-code').innerText = targetMbti;
             document.getElementById('modal-type-title').innerText = targetData.title;
             document.getElementById('modal-type-tag').innerText = mode === 'best' ? '❤️ 환상의 짝꿍인 이유' : '💣 파멸의 조합인 이유';
-            const head =
-                mode === 'best'
-                    ? '서로의 이별 리듬이 맞아 부담을 덜고 마무리하기 좋은 조합이에요.'
-                    : '이별 방식과 감정 온도차가 커 서로를 더 힘들게 만들 수 있는 조합이에요.';
-            document.getElementById('modal-type-desc').innerText = `${head}\n\n「${targetData.title}」 유형은 ${targetData.desc}`;
+            document.getElementById('modal-type-desc').innerText = (
+                mode === 'best' ? bestMatchDesc(targetData) : worstMatchDesc(targetData)
+            ).trim();
             document.getElementById('type-modal').classList.add('active');
         };
 
