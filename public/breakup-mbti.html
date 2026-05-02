@@ -43,8 +43,6 @@
         .modal.active { display: flex; animation: fadeIn 0.3s ease; }
         /* html2canvas용 — 화면 밖에 두어 캡처만 함(display:none이면 캡처 실패할 수 있음) */
         #share-card {
-            width: 320px;
-            margin: auto;
             position: fixed;
             left: -9999px;
             top: 0;
@@ -171,17 +169,18 @@
     </div>
 
     <!-- 공유용 이미지 카드 (오프스크린·html2canvas) — 배경은 JS에서 cardThemes 적용 -->
-    <div id="share-card" class="p-6 rounded-[2rem] shadow-xl text-center space-y-3 text-white">
-        <div class="text-xs font-bold uppercase tracking-wider opacity-90">BREAKUP MBTI</div>
-        <div id="card-emoji" class="text-5xl leading-none" aria-hidden="true"></div>
-        <div><span id="card-tag" class="text-[11px] font-bold inline-block px-3 py-1 rounded-full bg-white/25"></span></div>
-        <h1 id="card-mbti" class="text-4xl font-black drop-shadow-sm">ERHC</h1>
-        <p id="card-title" class="text-lg font-bold text-white/95"></p>
-        <p id="card-roast" class="text-sm text-white/90"></p>
-        <div class="bg-white/95 p-4 rounded-xl text-sm text-slate-600 shadow-inner">
+    <div id="share-card"
+        class="p-6 rounded-[2.5rem] text-white text-center space-y-4 shadow-2xl"
+        style="width: 320px; margin: auto;">
+        <div id="card-tag" class="text-[10px] bg-white/20 px-3 py-1 rounded-full inline-block"></div>
+        <div id="card-emoji" class="text-4xl" aria-hidden="true"></div>
+        <h1 id="card-mbti" class="text-5xl font-black">ERHC</h1>
+        <p id="card-title" class="text-lg font-bold"></p>
+        <p id="card-roast" class="text-sm opacity-90"></p>
+        <div class="bg-white/20 p-4 rounded-xl text-sm">
             <p id="card-emotion"></p>
         </div>
-        <div class="text-[10px] text-white/70 mt-2">breakup-mbti.vercel.app</div>
+        <div class="text-[10px] opacity-70">breakup-mbti.vercel.app</div>
     </div>
 
     <!-- Type Detail Modal -->
