@@ -12,13 +12,13 @@
     <meta property="og:site_name" content="말랑 이별 MBTI" />
     <meta property="og:title" content="말랑 이별 MBTI 💔" />
     <meta property="og:description" content="👀 소름… 내 이별 성격 나옴" />
-    <meta property="og:image" content="https://breakup-mbti.vercel.app/og-image.png?v=2" />
+    <meta property="og:image" content="https://breakup-mbti.vercel.app/og-image.jpg?v=3" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="말랑 이별 MBTI 💔" />
     <meta name="twitter:description" content="👀 소름… 내 이별 성격 나옴" />
-    <meta name="twitter:image" content="https://breakup-mbti.vercel.app/og-image.png?v=2" />
+    <meta name="twitter:image" content="https://breakup-mbti.vercel.app/og-image.jpg?v=3" />
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
 
@@ -644,7 +644,7 @@
             try {
                 const Kakao = await loadKakaoSdk();
                 if (!Kakao.isInitialized()) Kakao.init(key);
-                const imageUrl = window.location.origin + '/og-image.png?v=2';
+                const imageUrl = window.location.origin + '/og-image.jpg?v=3';
                 await Kakao.Share.sendDefault({
                     objectType: 'feed',
                     content: {

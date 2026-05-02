@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-/** Bump when replacing og-image.png so link previews / Kakao pick up the new file (CDN & SNS cache). */
-const OG_IMAGE = "/og-image.png?v=2";
+/** Bump ?v= when replacing og-image.jpg so link previews / Kakao pick up the new file (CDN & SNS cache). */
+const OG_IMAGE = "/og-image.jpg?v=3";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://breakup-mbti.vercel.app"),
