@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+/** Bump when replacing og-image.png so link previews / Kakao pick up the new file (CDN & SNS cache). */
+const OG_IMAGE = "/og-image.png?v=2";
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://breakup-mbti.vercel.app"),
   title: "말랑 이별 MBTI 💔",
@@ -12,7 +15,7 @@ export const metadata: Metadata = {
     siteName: "말랑 이별 MBTI",
     images: [
       {
-        url: "/og-image.png",
+        url: OG_IMAGE,
         width: 1200,
         height: 630,
       },
@@ -24,7 +27,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "말랑 이별 MBTI 💔",
     description: "👀 소름… 내 이별 성격 나옴",
-    images: ["/og-image.png"],
+    images: [OG_IMAGE],
   },
 };
 
