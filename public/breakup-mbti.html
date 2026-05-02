@@ -701,13 +701,13 @@
             document.getElementById('worst-match').innerText = data.worst;
 
             const roast = resultRoast[mbti];
-            const emoLines = emotionalLines[mbti];
+            const lines = emotionalLines[mbti];
             const roastWrap = document.getElementById('result-roast-wrap');
             if (roast) {
                 document.getElementById('result-roast').innerText = roast.line;
-                if (emoLines?.length) {
-                    document.getElementById('result-sub').innerText =
-                        emoLines[Math.floor(Math.random() * emoLines.length)];
+                if (lines?.length) {
+                    const random = lines[Math.floor(Math.random() * lines.length)];
+                    document.getElementById('result-sub').innerText = random;
                 } else {
                     document.getElementById('result-sub').innerText = roast.sub;
                 }
