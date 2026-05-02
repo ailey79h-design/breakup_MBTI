@@ -827,11 +827,13 @@
                 roastWrap.classList.add('hidden');
             }
 
-            const theme = cardThemes[mbti] || cardThemes.ERHC;
-            const shareCardEl = document.getElementById('share-card');
-            shareCardEl.style.background = theme.bg;
-            document.getElementById('card-emoji').innerText = theme.emoji;
-            document.getElementById('card-tag').innerText = theme.tag;
+            const theme = cardThemes[mbti];
+            if (theme) {
+                const card = document.getElementById('share-card');
+                card.style.background = theme.bg;
+                document.getElementById('card-emoji').innerText = theme.emoji;
+                document.getElementById('card-tag').innerText = theme.tag;
+            }
 
             document.getElementById('card-mbti').innerText = mbti;
             document.getElementById('card-title').innerText = data.title;
