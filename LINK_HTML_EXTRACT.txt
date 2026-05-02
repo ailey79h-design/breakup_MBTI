@@ -1,0 +1,839 @@
+================================================================================
+링크에서 가져온 HTML 추출 — 2026-05-02T18:36:55.8663742+09:00
+================================================================================
+
+========== https://breakup-mbti.vercel.app/breakup-mbti.html ==========
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>말랑 이별 MBTI 💔</title>
+    <meta name="description" content="👀 소름… 내 이별 성격 나옴" />
+    <link rel="canonical" href="https://breakup-mbti.vercel.app/breakup-mbti.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://breakup-mbti.vercel.app" />
+    <meta property="og:site_name" content="말랑 이별 MBTI" />
+    <meta property="og:title" content="말랑 이별 MBTI 💔" />
+    <meta property="og:description" content="👀 소름… 내 이별 성격 나옴" />
+    <meta property="og:image" content="https://breakup-mbti.vercel.app/og-image.jpg?v=3" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="말랑 이별 MBTI 💔" />
+    <meta name="twitter:description" content="👀 소름… 내 이별 성격 나옴" />
+    <meta name="twitter:image" content="https://breakup-mbti.vercel.app/og-image.jpg?v=3" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Pretendard', sans-serif; background-color: #fff5f7; color: #4a5568; overflow-x: hidden; }
+        .pink-gradient { background: linear-gradient(135deg, #ffafbd 0%, #ffc3a0 100%); }
+        .soft-pink-bg { background-color: #fff0f3; }
+        .btn-pink { background: linear-gradient(135deg, #fb7185 0%, #f43f5e 100%); }
+        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(251, 113, 133, 0.2); }
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .scale-dot { transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); cursor: pointer; border: 2px solid #ffe4e6; background: white; }
+        .scale-dot.active-plus { background-color: #fb7185; border-color: #fb7185; transform: scale(1.15); box-shadow: 0 0 15px rgba(251, 113, 133, 0.3); }
+        .scale-dot.active-minus { background-color: #fda4af; border-color: #fda4af; transform: scale(1.15); box-shadow: 0 0 15px rgba(253, 164, 175, 0.3); }
+        .scale-dot.active-neutral { background-color: #e2e8f0; border-color: #cbd5e1; }
+        .progress-bar { height: 6px; background: #ffe4e6; border-radius: 10px; overflow: hidden; }
+        .progress-fill { background: linear-gradient(90deg, #fda4af, #fb7185); transition: width 0.4s ease; }
+        #toast { visibility: hidden; min-width: 200px; background-color: rgba(0,0,0,0.8); color: #fff; text-align: center; border-radius: 30px; padding: 12px 24px; position: fixed; z-index: 1000; left: 50%; transform: translateX(-50%); bottom: 40px; font-size: 14px; opacity: 0; transition: 0.3s; }
+        #toast.show { visibility: visible; opacity: 1; }
+        .modal { display: none; position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; padding: 20px; }
+        .modal.active { display: flex; animation: fadeIn 0.3s ease; }
+    </style>
+</head>
+<body class="min-h-screen pb-10">
+
+    <div id="app-container" class="max-w-md mx-auto min-h-screen flex flex-col relative px-4">
+
+        <!-- Header -->
+        <header class="py-6 flex items-center justify-between">
+            <div class="flex items-center gap-1 cursor-pointer" onclick="location.reload()">
+                <span class="text-rose-500 text-xl font-black tracking-tighter">B-TYPE 💖</span>
+            </div>
+            <div id="progress-wrapper" class="hidden flex-1 ml-6 flex items-center gap-3">
+                <div class="progress-bar flex-1">
+                    <div id="header-progress" class="progress-fill h-full" style="width: 0%"></div>
+                </div>
+                <span id="progress-text" class="text-[10px] font-bold text-rose-400">0%</span>
+            </div>
+        </header>
+
+        <!-- Home Screen -->
+        <div id="home-screen" class="flex-1 flex flex-col items-center justify-center text-center fade-in">
+            <div class="relative mb-10">
+                <div class="w-32 h-32 bg-white rounded-[3rem] shadow-xl flex items-center justify-center rotate-6">
+                    <span class="text-6xl">🎀</span>
+                </div>
+                <div class="absolute -bottom-2 -right-2 w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center animate-bounce">
+                    <span class="text-xl">💌</span>
+                </div>
+            </div>
+            <h1 class="text-3xl font-800 text-slate-800 mb-4 leading-tight">우리 헤어지던 날,<br><span class="text-rose-500">당신의 온도는?</span></h1>
+            <p class="text-slate-400 text-sm mb-12 leading-relaxed">
+                나만 진심이었을까? 아님 우리 둘 다?<br>
+                12문항으로 알아보는 말랑말랑 이별 성향 테스트
+            </p>
+            <button id="start-btn" class="w-full py-5 btn-pink text-white rounded-3xl font-bold text-xl shadow-xl shadow-rose-200 active:scale-95 transition-transform">
+                테스트 시작하기
+            </button>
+        </div>
+
+        <!-- Test Screen -->
+        <div id="test-screen" class="hidden flex-1 flex flex-col py-4">
+            <div id="question-container" class="space-y-16 pb-32"></div>
+            <div class="fixed bottom-0 left-0 w-full p-6 bg-gradient-to-t from-white via-white to-transparent z-10">
+                <div class="max-w-md mx-auto">
+                    <button id="submit-btn" class="w-full py-5 bg-rose-100 text-rose-300 rounded-3xl font-bold text-lg cursor-not-allowed transition-all">
+                        답변을 모두 체크해줘!
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Screen -->
+        <div id="loading-screen" class="hidden flex-1 flex flex-col items-center justify-center text-center">
+            <div class="w-24 h-24 mb-6 relative">
+                <span class="text-5xl absolute inset-0 flex items-center justify-center animate-pulse">💕</span>
+                <div class="absolute inset-0 border-4 border-rose-100 rounded-full border-t-rose-500 animate-spin"></div>
+            </div>
+            <h2 class="text-xl font-bold text-slate-700">마음을 분석하는 중...</h2>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="hidden flex-1 flex flex-col min-h-[78vh]">
+            <div id="result-main-block" class="flex-1 flex flex-col min-h-0">
+            <div class="text-center mb-8 fade-in">
+                <div class="inline-block px-4 py-1 bg-rose-50 text-rose-400 rounded-full text-[10px] font-bold mb-4">LOVE ARCHIVE #RESULTS</div>
+                <h1 id="result-mbti" class="text-6xl font-black text-rose-500 italic mb-2">...</h1>
+                <h2 id="result-title" class="text-2xl font-bold text-slate-700">성향 분석 중</h2>
+            </div>
+
+            <div id="trait-dashboard" class="space-y-4 mb-8 px-2 fade-in" style="animation-delay: 0.2s"></div>
+
+            <div class="space-y-6 fade-in" style="animation-delay: 0.4s">
+                <div class="glass-card p-6 rounded-[2rem] shadow-sm">
+                    <h3 class="font-bold text-rose-500 mb-3 flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 bg-rose-400 rounded-full"></span> 이별 레시피
+                    </h3>
+                    <div id="result-desc" class="text-slate-500 leading-relaxed text-sm"></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div onclick="window.showTypeDetail('best')" class="bg-blue-50 p-5 rounded-[1.5rem] border border-blue-100 text-center cursor-pointer active:scale-95 transition-transform">
+                        <span class="text-[10px] font-bold text-blue-400 uppercase tracking-tighter">환상의 짝꿍 ❤️</span>
+                        <div id="best-match" class="font-black text-blue-600 mt-1 text-lg">-</div>
+                        <span class="text-[8px] text-blue-300">클릭해서 보기</span>
+                    </div>
+                    <div onclick="window.showTypeDetail('worst')" class="bg-rose-50 p-5 rounded-[1.5rem] border border-rose-100 text-center cursor-pointer active:scale-95 transition-transform">
+                        <span class="text-[10px] font-bold text-rose-400 uppercase tracking-tighter">파멸의 조합 💣</span>
+                        <div id="worst-match" class="font-black text-rose-600 mt-1 text-lg">-</div>
+                        <span class="text-[8px] text-rose-300">클릭해서 보기</span>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <div id="result-owner-actions" class="mt-10 flex flex-col gap-3 pb-10 fade-in" style="animation-delay: 0.6s">
+                <button id="share-link-btn" type="button" class="w-full py-5 btn-pink text-white rounded-3xl font-bold shadow-lg shadow-rose-200">카카오톡으로 공유하기</button>
+                <button id="retest-btn" type="button" class="w-full py-5 border-2 border-rose-100 text-rose-300 rounded-3xl font-bold">다시 테스트하기</button>
+            </div>
+
+            <div id="shared-take-test-footer" class="hidden shrink-0 pt-6 pb-12 fade-in">
+                <button type="button" id="shared-take-test-btn" class="w-full py-5 btn-pink text-white rounded-3xl font-bold shadow-lg shadow-rose-200 active:scale-[0.98] transition-transform">
+                    나의 이별 MBTI 확인하러 가기
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Type Detail Modal -->
+    <div id="type-modal" class="modal" onclick="this.classList.remove('active')">
+        <div class="max-w-xs w-full glass-card p-8 rounded-[2.5rem] shadow-2xl relative" onclick="event.stopPropagation()">
+            <button class="absolute top-4 right-4 text-slate-300" onclick="document.getElementById('type-modal').classList.remove('active')">✕</button>
+            <div id="modal-content" class="text-center">
+                <div id="modal-type-code" class="text-4xl font-black text-rose-500 mb-2 italic">TYPE</div>
+                <h4 id="modal-type-title" class="text-xl font-bold text-slate-700 mb-4">유형 제목</h4>
+                <div id="modal-type-tag" class="inline-block px-3 py-1 bg-rose-50 text-rose-500 text-[10px] font-bold rounded-full mb-4">궁합 설명</div>
+                <p id="modal-type-desc" class="text-sm text-slate-500 leading-relaxed text-center break-keep"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">복사 완료! 친구에게 보내봐 💖</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        /** 항상 이 경로로 공유·복귀 (루트 `/`는 쿼리가 유실될 수 있음) */
+        const SHARE_PAGE_PATH = '/breakup-mbti.html';
+        /** 링크 공유 시 카톡·복사 미리보기 등에 쓰는 문구 */
+        const SHARE_CLIPBOARD_INTRO = '너 이별하면 이 타입일 듯ㅋㅋ 확인해봐';
+        /**
+         * Kakao.sendDefault 피드는 imageUrl + title + description을 **각각** 그립니다.
+         * description에 인트로 문장을 넣으면 썸네일 글씨와 겹쳐 보이고, 줄 바꿈·기기마다 위치가 달라집니다.
+         * 썸네일 JPG에 문구가 있으면 설명은 비우고(또는 한 줄 고정) 이미지를 유일한 카피로 둡니다.
+         */
+        const KAKAO_FEED_TITLE = '말랑 이별 MBTI 💔';
+        /** 빈 문자열: 피드 카드에 긴 설명 블록을 만들지 않음(줄바꿈·기기별 레이아웃 변동 방지). 공유 인트로는 클립보드/Web Share 경로에만 사용 */
+        const KAKAO_FEED_DESCRIPTION = '';
+
+        let db, auth, currentUser;
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'breakup-mbti-pink';
+
+        try {
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
+            }
+        } catch (e) { console.error(e); }
+
+        const questions = [
+            { id: 1, q: "헤어진 직후, 나는 내 감정을 친구들에게 바로 말해야 풀린다.", type: "EI" },
+            { id: 2, q: "혼자 있을 때보다 친구들과 떠들 때 이별이 더 잘 잊혀진다.", type: "EI" },
+            { id: 3, q: "자만추든 소개팅이든 새로운 사람을 만나는 게 최고의 치료제다.", type: "RS" },
+            { id: 4, q: "헤어지고도 전 애인 SNS 염탐은 멈출 수 없다.", type: "HL" },
+            { id: 5, q: "이별 사유를 납득할 때까지 물어보고 대화해야 끝낼 수 있다.", type: "CA" },
+            { id: 6, q: "상대방과 관련된 물건을 버리는 데 아주 오랜 시간이 걸린다.", type: "HL" },
+            { id: 7, q: "힘들 때 밖으로 나가기보단 방 안에서 혼자 침잠하는 편이다.", type: "IE" },
+            { id: 8, q: "조용히 일기를 쓰거나 생각하며 마음을 정리하는 게 편하다.", type: "SR" },
+            { id: 9, q: "헤어지자마자 번호 삭제, SNS 차단이 내 마음의 평화를 가져온다.", type: "LH" },
+            { id: 10, q: "이별 상황의 갈등을 마주하기보다 시간이 해결해주길 기다린다.", type: "AC" },
+            { id: 11, q: "아무리 슬퍼도 상황을 논리적으로 분석하려는 습관이 있다.", type: "AC" },
+            { id: 12, q: "이별은 내 삶의 모든 에너지를 앗아가서 복구에 한참 걸린다.", type: "EI" }
+        ];
+
+        const typeData = {
+            // [E] 표현형 그룹
+            ERHC: {
+                title: "열정적인 집착 추적자",
+                desc: "이별을 납득할 수 없어 끝까지 이유를 묻는 타입입니다. 감정이 뜨거워 정리가 가장 힘들죠.",
+                best: "IRLA",
+                worst: "ISHA",
+            },
+            ERHA: {
+                title: "폭풍 눈물 피드 도배러",
+                desc: "슬픔을 숨기지 못하고 SNS나 친구들에게 모든 감정을 쏟아냅니다. 위로가 절실한 스타일이에요.",
+                best: "IRLC",
+                worst: "ESLC",
+            },
+            ERLC: {
+                title: "쿨한 척하는 잔소리꾼",
+                desc: "상대에게 마지막으로 할 말은 다 해야 직성이 풀립니다. 쿨해 보이고 싶지만 속은 시끄러워요.",
+                best: "IRHA",
+                worst: "ISLA",
+            },
+            ERLA: {
+                title: "이별 후유증 메이커",
+                desc: "이별 후 친구들과 매일 술을 마시며 잊으려 노력하지만, 다음 날 아침 후회하는 타입입니다.",
+                best: "ISLC",
+                worst: "IRHC",
+            },
+            ESHC: {
+                title: "새로운 사랑 사냥꾼",
+                desc: "슬픔을 새로운 만남으로 잊으려 합니다. 이별 후 가장 빠르게 '환승'이나 소개팅을 시도하죠.",
+                best: "ISHC",
+                worst: "ERLA",
+            },
+            ESHA: {
+                title: "파티 피플 이별러",
+                desc: "이별했으니 이제 자유! 일부러 더 화려하게 꾸미고 밖으로 나가 즐거운 척 에너지를 씁니다.",
+                best: "ISHA",
+                worst: "ERHC",
+            },
+            ESLC: {
+                title: "칼 같은 비즈니스 종결자",
+                desc: "정리가 끝나면 남보다 못한 사이. 상대의 연락을 가장 완벽하게 차단하고 일상으로 복귀합니다.",
+                best: "ISLA",
+                worst: "ERHA",
+            },
+            ESLA: {
+                title: "인싸형 이별 긍정왕",
+                desc: "슬픔도 잠시, '더 좋은 사람 만나겠지!'라며 금방 털고 일어나 주변 사람들에게 에너지를 얻습니다.",
+                best: "ISLC",
+                worst: "ISHC",
+            },
+            // [I] 침잠형 그룹
+            IRHC: {
+                title: "혼자만의 추억 미식가",
+                desc: "함께 간 장소, 노래를 무한 반복하며 혼자 깊은 슬픔에 빠집니다. 겉으로는 티가 안 나서 더 아파요.",
+                best: "ERLA",
+                worst: "ESLC",
+            },
+            IRHA: {
+                title: "새벽 감성 소설가",
+                desc: "혼자 일기를 쓰거나 비공개 계정에 긴 글을 남기며 마음을 정리합니다. 생각이 아주 많아요.",
+                best: "ERLC",
+                worst: "ESHA",
+            },
+            IRLC: {
+                title: "조용한 독립형",
+                desc: "이별 후 조용히 잠수 타며 혼자만의 루틴을 되찾습니다. 남에게 슬픈 모습을 보이기 싫어해요.",
+                best: "ERHA",
+                worst: "ESLA",
+            },
+            IRLA: {
+                title: "철벽 방어 회피 만렙",
+                desc: "갈등이 싫어서 조용히 이별을 받아들이고 도망치듯 관계를 정리합니다. 연락 닿기가 가장 힘들죠.",
+                best: "ERHC",
+                worst: "ESHC",
+            },
+            ISHC: {
+                title: "디지털 장례 지도사",
+                desc: "헤어지자마자 사진, 대화방, 선물부터 완벽하게 삭제합니다. 흔적을 지워야 살 수 있는 타입이에요.",
+                best: "ESHC",
+                worst: "ESLA",
+            },
+            ISHA: {
+                title: "추억 저장 수호자",
+                desc: "옛 연인의 물건을 버리지 못하고 서랍 깊숙이 보관합니다. 가끔 꺼내 보며 혼자 추억여행을 떠나요.",
+                best: "ESHA",
+                worst: "ERHC",
+            },
+            ISLC: {
+                title: "쿨한 이성 주의자",
+                desc: "이미 끝난 인연에 에너지를 쓰지 않습니다. 논리적으로 '우린 안 맞아'라고 결론 내리면 끝입니다.",
+                best: "ESLA",
+                worst: "ERLA",
+            },
+            ISLA: {
+                title: "조용한 해탈 신선",
+                desc: "이별도 삶의 일부라며 덤덤하게 받아들입니다. 슬픈데 안 슬픈 것 같은 묘한 평정심을 유지해요.",
+                best: "ESLC",
+                worst: "ERLC",
+            },
+        };
+
+        const init = async () => {
+            if (!auth) return;
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                onAuthStateChanged(auth, (user) => {
+                    currentUser = user;
+                    const urlParams = new URLSearchParams(window.location.search);
+                    if (urlParams.get('id') && user) loadSharedResult(urlParams.get('id'));
+                });
+            } catch (e) { console.error(e); }
+        };
+
+        const loadSharedResult = async (id) => {
+            if (!db || !currentUser) return;
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('loading-screen').classList.remove('hidden');
+            try {
+                const docSnap = await getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'results', id));
+                if (docSnap.exists()) {
+                    displayResult(docSnap.data().mbti, docSnap.data().scores, { fromShare: true });
+                    shareableDocId = id;
+                }
+            } catch (e) {
+                console.error("Shared result load error:", e);
+                location.href = SHARE_PAGE_PATH;
+            }
+        };
+
+        let answers = {};
+        let shareableDocId = null;
+        let lastMbti = null;
+        let lastScores = null;
+
+        const SCORE_KEYS = ['E', 'I', 'R', 'S', 'H', 'L', 'C', 'A'];
+
+        function encodeSharePayload(mbti, scores) {
+            const s = {};
+            for (const k of SCORE_KEYS) s[k] = Number(scores[k]) || 0;
+            const json = JSON.stringify({ m: mbti, s });
+            const bytes = new TextEncoder().encode(json);
+            let bin = '';
+            for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+            return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+
+        function decodeSharePayload(encoded) {
+            try {
+                if (!encoded || typeof encoded !== 'string') return null;
+                let b64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+                const pad = b64.length % 4;
+                if (pad) b64 += '='.repeat(4 - pad);
+                const binary = atob(b64);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                const o = JSON.parse(new TextDecoder().decode(bytes));
+                if (!o || typeof o.m !== 'string' || o.m.length !== 4 || !o.s || typeof o.s !== 'object') return null;
+                const out = {};
+                for (const k of SCORE_KEYS) {
+                    const n = Number(o.s[k]);
+                    if (Number.isNaN(n)) return null;
+                    out[k] = n;
+                }
+                return { m: o.m.toUpperCase(), s: out };
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function tryOpenSharedFromUrl() {
+            const r = new URLSearchParams(window.location.search).get('r');
+            if (!r || !r.trim()) return false;
+            const data = decodeSharePayload(r.trim());
+            if (!data) return false;
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('test-screen').classList.add('hidden');
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('progress-wrapper').classList.add('hidden');
+            displayResult(data.m, data.s, { fromShare: true });
+            shareableDocId = null;
+            return true;
+        }
+
+        const renderQuestions = () => {
+            const container = document.getElementById('question-container');
+            container.innerHTML = questions.map(q => `
+                <div class="fade-in px-4 text-center">
+                    <h3 class="text-xl font-bold text-slate-800 mb-8 leading-snug break-keep">${q.q}</h3>
+                    <div class="flex items-center justify-between max-w-sm mx-auto">
+                        <span class="text-rose-400 font-bold text-[11px]">완전 인정</span>
+                        <div class="flex items-center gap-2">
+                            <div onclick="window.selectScore(${q.id}, 3, 'plus')" class="scale-dot w-9 h-9 rounded-full" id="dot-${q.id}-p3"></div>
+                            <div onclick="window.selectScore(${q.id}, 2, 'plus')" class="scale-dot w-7 h-7 rounded-full" id="dot-${q.id}-p2"></div>
+                            <div onclick="window.selectScore(${q.id}, 0, 'neutral')" class="scale-dot w-5 h-5 rounded-full" id="dot-${q.id}-n"></div>
+                            <div onclick="window.selectScore(${q.id}, 2, 'minus')" class="scale-dot w-7 h-7 rounded-full" id="dot-${q.id}-m2"></div>
+                            <div onclick="window.selectScore(${q.id}, 3, 'minus')" class="scale-dot w-9 h-9 rounded-full" id="dot-${q.id}-m3"></div>
+                        </div>
+                        <span class="text-slate-300 font-bold text-[11px]">전혀 아님</span>
+                    </div>
+                </div>
+            `).join('');
+        };
+
+        window.selectScore = (qId, score, type) => {
+            const suffixes = ['p3', 'p2', 'n', 'm2', 'm3'];
+            suffixes.forEach(s => document.getElementById(`dot-${qId}-${s}`)?.classList.remove('active-plus', 'active-minus', 'active-neutral'));
+            const targetId = type === 'plus' ? `dot-${qId}-p${score}` : (type === 'minus' ? `dot-${qId}-m${score}` : `dot-${qId}-n`);
+            document.getElementById(targetId)?.classList.add(type === 'plus' ? 'active-plus' : (type === 'minus' ? 'active-minus' : 'active-neutral'));
+            answers[qId] = type === 'plus' ? score : (type === 'minus' ? -score : 0);
+            updateProgress();
+        };
+
+        const updateProgress = () => {
+            const count = Object.keys(answers).length;
+            const progress = Math.round((count / questions.length) * 100);
+            const progressBar = document.getElementById('header-progress');
+            const progressText = document.getElementById('progress-text');
+            if (progressBar) progressBar.style.width = progress + '%';
+            if (progressText) progressText.innerText = progress + '%';
+
+            if (count === questions.length) {
+                const btn = document.getElementById('submit-btn');
+                if (btn) {
+                    btn.classList.replace('bg-rose-100', 'btn-pink');
+                    btn.classList.replace('text-rose-300', 'text-white');
+                    btn.classList.remove('cursor-not-allowed');
+                    btn.innerText = "결과 보러가기 ✨";
+                }
+            }
+        };
+
+        const calculateAndSave = async () => {
+            if (Object.keys(answers).length < questions.length) return;
+            document.getElementById('test-screen').classList.add('hidden');
+            document.getElementById('loading-screen').classList.remove('hidden');
+
+            let s = { E: 0, I: 0, R: 0, S: 0, H: 0, L: 0, C: 0, A: 0 };
+            questions.forEach(q => {
+                const v = answers[q.id] || 0;
+                const [l, r] = q.type.split('');
+                if (v > 0) s[l] += v; else if (v < 0) s[r] += Math.abs(v); else { s[l] += 0.5; s[r] += 0.5; }
+            });
+            const mbti = (s.E >= s.I ? "E" : "I") + (s.R >= s.S ? "R" : "S") + (s.H >= s.L ? "H" : "L") + (s.C >= s.A ? "C" : "A");
+
+            try {
+                if (db && currentUser) {
+                    const id = crypto.randomUUID();
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'results', id), {
+                        mbti, scores: s, createdAt: new Date().toISOString(), userId: currentUser.uid
+                    });
+                    shareableDocId = id;
+                }
+            } catch (e) { console.error("Save error:", e); }
+            setTimeout(() => displayResult(mbti, s), 1500);
+        };
+
+        const displayResult = (mbti, s, options = {}) => {
+            const fromShare = !!options.fromShare;
+            lastMbti = mbti;
+            lastScores = { ...s };
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('progress-wrapper').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            const data = typeData[mbti] || typeData["ERHC"];
+            document.getElementById('result-mbti').innerText = mbti;
+            document.getElementById('result-title').innerText = data.title;
+            document.getElementById('result-desc').innerText = data.desc;
+            document.getElementById('best-match').innerText = data.best;
+            document.getElementById('worst-match').innerText = data.worst;
+
+            const traits = [
+                { l: 'E', r: 'I', label: '표현 방식', sl: '감정 발산', sr: '내면 침잠' },
+                { l: 'R', r: 'S', label: '극복 방식', sl: '새로운 만남', sr: '혼자만의 시간' },
+                { l: 'H', r: 'L', label: '미련 온도', sl: '뜨거운 집착', sr: '차가운 해탈' },
+                { l: 'C', r: 'A', label: '종결 스타일', sl: '확실한 대화', sr: '조용한 회피' }
+            ];
+
+            document.getElementById('trait-dashboard').innerHTML = traits.map(t => {
+                const total = (s[t.l] + s[t.r]) || 1;
+                const lP = Math.round((s[t.l] / total) * 100);
+                return `
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between items-center px-1">
+                            <span class="text-[9px] font-bold text-rose-300 uppercase">${t.sl}</span>
+                            <span class="text-[10px] font-bold text-slate-400">${t.label}</span>
+                            <span class="text-[9px] font-bold text-slate-300 uppercase">${t.sr}</span>
+                        </div>
+                        <div class="h-6 bg-white rounded-full flex overflow-hidden border border-rose-50 shadow-inner relative">
+                            <div class="h-full bg-rose-200 transition-all duration-1000" style="width: ${lP}%"></div>
+                            <div class="absolute inset-0 flex justify-between items-center px-3 pointer-events-none text-[10px] font-black">
+                                <span class="text-rose-500">${lP}%</span>
+                                <span class="text-slate-400">${100 - lP}%</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const owner = document.getElementById('result-owner-actions');
+            const sharedFooter = document.getElementById('shared-take-test-footer');
+            if (fromShare) {
+                owner?.classList.add('hidden');
+                sharedFooter?.classList.remove('hidden');
+            } else {
+                owner?.classList.remove('hidden');
+                sharedFooter?.classList.add('hidden');
+                prefetchKakaoSdkForShare();
+            }
+        };
+
+        window.showTypeDetail = (mode) => {
+            const currentMbti = document.getElementById('result-mbti').innerText;
+            const currentData = typeData[currentMbti] || typeData.ERHC;
+            const targetMbti = mode === 'best' ? currentData.best : currentData.worst;
+            const targetData = typeData[targetMbti];
+
+            if (!targetData) return;
+
+            document.getElementById('modal-type-code').innerText = targetMbti;
+            document.getElementById('modal-type-title').innerText = targetData.title;
+            document.getElementById('modal-type-tag').innerText = mode === 'best' ? '❤️ 환상의 짝꿍인 이유' : '💣 파멸의 조합인 이유';
+            const head =
+                mode === 'best'
+                    ? '서로의 이별 리듬이 맞아 부담을 덜고 마무리하기 좋은 조합이에요.'
+                    : '이별 방식과 감정 온도차가 커 서로를 더 힘들게 만들 수 있는 조합이에요.';
+            document.getElementById('modal-type-desc').innerText = `${head}\n\n「${targetData.title}」 유형은 ${targetData.desc}`;
+            document.getElementById('type-modal').classList.add('active');
+        };
+
+        document.getElementById('start-btn').onclick = () => {
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('test-screen').classList.remove('hidden');
+            document.getElementById('progress-wrapper').classList.remove('hidden');
+            renderQuestions();
+        };
+
+        document.getElementById('retest-btn').onclick = () => location.reload();
+
+        document.getElementById('shared-take-test-btn')?.addEventListener('click', () => {
+            location.href = SHARE_PAGE_PATH;
+        });
+
+        document.getElementById('submit-btn').onclick = calculateAndSave;
+
+        const copyToClipboard = (text) => {
+            return new Promise((resolve, reject) => {
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text)
+                        .then(resolve)
+                        .catch(() => {
+                            useExecCommand(text) ? resolve() : reject();
+                        });
+                } else {
+                    useExecCommand(text) ? resolve() : reject();
+                }
+            });
+        };
+
+        const useExecCommand = (text) => {
+            try {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.setAttribute('readonly', '');
+                textArea.style.position = "fixed";
+                textArea.style.left = "0";
+                textArea.style.top = "0";
+                textArea.style.opacity = "0";
+                textArea.style.pointerEvents = "none";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                textArea.setSelectionRange(0, text.length);
+                const successful = document.execCommand('copy');
+                document.body.removeChild(textArea);
+                return successful;
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                return false;
+            }
+        };
+
+        /** null = 아직 안 받음, '' = 서버에 키 없음 */
+        let kakaoJsKeyCache = null;
+
+        async function fetchKakaoJsKey() {
+            if (kakaoJsKeyCache !== null) return kakaoJsKeyCache;
+            try {
+                const res = await fetch('/api/kakao/config');
+                if (!res.ok) {
+                    kakaoJsKeyCache = '';
+                    return '';
+                }
+                const data = await res.json();
+                kakaoJsKeyCache = (data.key || '').trim();
+                return kakaoJsKeyCache;
+            } catch {
+                kakaoJsKeyCache = '';
+                return '';
+            }
+        }
+
+        /** 결과 화면 진입 시 카카오 키·SDK 미리 로드 → 탭 한 번에 친구 선택까지 빨리 연결 */
+        function prefetchKakaoSdkForShare() {
+            fetchKakaoJsKey()
+                .then((key) => {
+                    if (!key) return null;
+                    return loadKakaoSdk();
+                })
+                .then((Kakao) => {
+                    if (!Kakao) return;
+                    const key = kakaoJsKeyCache;
+                    if (key && !Kakao.isInitialized()) Kakao.init(key);
+                })
+                .catch(() => {});
+        }
+
+        function loadKakaoSdk() {
+            return new Promise((resolve, reject) => {
+                if (window.Kakao) {
+                    resolve(window.Kakao);
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = 'https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js';
+                script.crossOrigin = 'anonymous';
+                script.onload = () => resolve(window.Kakao);
+                script.onerror = () => reject(new Error('Kakao SDK load failed'));
+                document.head.appendChild(script);
+            });
+        }
+
+        /** 카카오톡 피드 공유 → 친구 선택 (카카오개발자 앱·도메인·KAKAO_JAVASCRIPT_KEY 필요) */
+        async function tryShareWithKakao(shareUrl) {
+            const key = await fetchKakaoJsKey();
+            if (!key) return false;
+            try {
+                const Kakao = await loadKakaoSdk();
+                if (!Kakao.isInitialized()) Kakao.init(key);
+                const imageUrl = window.location.origin + '/og-image.jpg?v=3';
+                await Kakao.Share.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: KAKAO_FEED_TITLE,
+                        description: KAKAO_FEED_DESCRIPTION,
+                        imageUrl,
+                        link: {
+                            mobileWebUrl: shareUrl,
+                            webUrl: shareUrl,
+                        },
+                    },
+                    buttons: [
+                        {
+                            title: '결과 보러가기',
+                            link: {
+                                mobileWebUrl: shareUrl,
+                                webUrl: shareUrl,
+                            },
+                        },
+                    ],
+                });
+                return true;
+            } catch (e) {
+                console.warn('Kakao Share:', e);
+                return false;
+            }
+        }
+
+        document.getElementById('share-link-btn').onclick = async () => {
+            if (!lastMbti || !lastScores) {
+                showToastMessage('먼저 결과를 확인한 뒤 다시 눌러줘!');
+                return;
+            }
+            const payload = encodeSharePayload(lastMbti, lastScores);
+            const url = window.location.origin + SHARE_PAGE_PATH + '?r=' + encodeURIComponent(payload);
+            const shareText = `${SHARE_CLIPBOARD_INTRO}\n${url}`;
+
+            // ① 카카오 공식 피드 SDK → 친구 선택 (키·사이트 도메인 등록 필요)
+            if (await tryShareWithKakao(url)) {
+                showToastMessage('카카오톡에서 친구를 골라 보내줘! 💌');
+                return;
+            }
+
+            // ② 시스템 공유 시트에서 카카오톡 선택 (인앱 브라우저에서도 자주 동작)
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: '말랑 이별 MBTI 💔',
+                        text: SHARE_CLIPBOARD_INTRO + '\n',
+                        url,
+                    });
+                    showToastMessage('목록에서 카카오톡을 골라줘! 💬');
+                    return;
+                } catch (err) {
+                    if (err && err.name === 'AbortError') return;
+                    try {
+                        await navigator.share({ url });
+                        showToastMessage('카카오톡을 선택해서 보내줘! 💬');
+                        return;
+                    } catch (err2) {
+                        if (err2 && err2.name === 'AbortError') return;
+                    }
+                }
+            }
+
+            // ③ 링크만 조용히 복사 (카카오 채팅에 길게 눌러 붙여넣기)
+            try {
+                await copyToClipboard(url);
+                showToastMessage('링크를 복사했어! 카카오톡에 붙여넣기 해줘 📋');
+            } catch {
+                try {
+                    await copyToClipboard(shareText);
+                    showToastMessage('복사했어! 카카오톡에 붙여넣기 해줘 📋');
+                } catch {
+                    showToastMessage('브라우저 메뉴(⋮) → 공유에서 카카오톡을 골라줘');
+                }
+            }
+        };
+
+        const defaultCopyToastText = document.getElementById('toast').textContent.trim();
+
+        const showToast = () => {
+            showToastMessage(defaultCopyToastText);
+        };
+
+        function showToastMessage(msg) {
+            const t = document.getElementById('toast');
+            if (t) {
+                t.textContent = msg;
+                t.classList.add('show');
+                setTimeout(() => t.classList.remove('show'), 2500);
+            }
+        }
+
+        if (!tryOpenSharedFromUrl()) {
+            init();
+        }
+    </script>
+</body>
+</html>
+
+========== https://breakup-mbti.vercel.app/index.html ==========
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>말랑 이별 MBTI 💔</title>
+    <meta name="description" content="👀 소름… 내 이별 성격 나옴" />
+    <link rel="canonical" href="https://breakup-mbti.vercel.app/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:url" content="https://breakup-mbti.vercel.app/" />
+    <meta property="og:site_name" content="말랑 이별 MBTI" />
+    <meta property="og:title" content="말랑 이별 MBTI 💔" />
+    <meta property="og:description" content="👀 소름… 내 이별 성격 나옴" />
+    <meta property="og:image" content="https://breakup-mbti.vercel.app/og-image.jpg?v=3" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="말랑 이별 MBTI 💔" />
+    <meta name="twitter:description" content="👀 소름… 내 이별 성격 나옴" />
+    <meta name="twitter:image" content="https://breakup-mbti.vercel.app/og-image.jpg?v=3" />
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Pretendard', system-ui, sans-serif;
+            background: linear-gradient(160deg, #fff5f7 0%, #ffe4e9 45%, #fdf2f8 100%);
+            color: #4a5568;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .card {
+            max-width: 360px;
+            width: 100%;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.92);
+            border: 1px solid rgba(251, 113, 133, 0.2);
+            border-radius: 20px;
+            padding: 32px 24px;
+            box-shadow: 0 12px 40px rgba(251, 113, 133, 0.12);
+        }
+        h1 { font-size: 1.35rem; font-weight: 800; margin: 0 0 8px; color: #be185d; }
+        p { margin: 0 0 20px; font-size: 0.95rem; line-height: 1.5; }
+        a.btn {
+            display: inline-block;
+            padding: 14px 28px;
+            border-radius: 9999px;
+            font-weight: 700;
+            color: #fff;
+            text-decoration: none;
+            background: linear-gradient(135deg, #fb7185 0%, #f43f5e 100%);
+            box-shadow: 0 4px 16px rgba(244, 63, 94, 0.35);
+        }
+        a.btn:hover { filter: brightness(1.05); }
+        .hint { margin-top: 16px; font-size: 0.8rem; color: #94a3b8; }
+    </style>
+    <script>
+        (function () {
+            var q = window.location.search || '';
+            var h = window.location.hash || '';
+            window.location.replace('breakup-mbti.html' + q + h);
+        })();
+    </script>
+</head>
+<body>
+    <div class="card">
+        <h1>말랑 이별 MBTI 💔</h1>
+        <p>테스트 페이지로 이동 중이에요.</p>
+        <a class="btn" href="breakup-mbti.html">테스트 하러가기</a>
+        <p class="hint">화면이 바뀌지 않으면 위 버튼을 눌러 주세요.</p>
+    </div>
+</body>
+</html>
