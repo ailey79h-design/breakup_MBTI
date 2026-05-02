@@ -108,8 +108,8 @@
                 <h1 id="result-mbti" class="text-6xl font-black text-rose-500 italic mb-2">...</h1>
                 <h2 id="result-title" class="text-2xl font-bold text-slate-700">성향 분석 중</h2>
                 <div id="result-roast-wrap" class="mt-5 px-2 hidden">
-                    <p id="result-roast-line" class="text-[15px] font-bold text-slate-800 leading-snug"></p>
-                    <p id="result-roast-sub" class="text-xs text-slate-400 mt-2 leading-relaxed"></p>
+                    <p id="result-roast" class="text-lg font-bold text-rose-500 mb-1"></p>
+                    <p id="result-sub" class="text-sm text-slate-400 mb-4"></p>
                 </div>
             </div>
 
@@ -558,8 +558,8 @@
             const roastWrap = document.getElementById('result-roast-wrap');
             if (roast?.line) {
                 roastWrap.classList.remove('hidden');
-                document.getElementById('result-roast-line').innerText = roast.line;
-                document.getElementById('result-roast-sub').innerText = roast.sub || '';
+                document.getElementById('result-roast').innerText = roast.line;
+                document.getElementById('result-sub').innerText = roast.sub || '';
             } else {
                 roastWrap.classList.add('hidden');
             }
