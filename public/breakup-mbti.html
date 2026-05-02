@@ -135,7 +135,7 @@
             </div>
 
             <div id="result-owner-actions" class="mt-10 flex flex-col gap-3 pb-10 fade-in" style="animation-delay: 0.6s">
-                <button id="share-link-btn" class="w-full py-5 btn-pink text-white rounded-3xl font-bold shadow-lg shadow-rose-200">결과 링크 복사하기</button>
+                <button id="share-link-btn" type="button" class="w-full py-5 btn-pink text-white rounded-3xl font-bold shadow-lg shadow-rose-200">카카오톡으로 공유하기</button>
                 <button id="retest-btn" type="button" class="w-full py-5 border-2 border-rose-100 text-rose-300 rounded-3xl font-bold">다시 테스트하기</button>
             </div>
 
@@ -161,22 +161,6 @@
     </div>
 
     <div id="toast">복사 완료! 친구에게 보내봐 💖</div>
-
-    <!-- 자동 복사 실패 시(특히 모바일): 길게 눌러 복사 / 재시도 -->
-    <div id="copy-fallback-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="copy-fallback-title">
-        <div class="max-w-sm w-full glass-card p-6 rounded-[2rem] shadow-2xl relative" onclick="event.stopPropagation()">
-            <button type="button" class="absolute top-4 right-4 text-slate-300 text-xl leading-none" id="copy-fallback-close-x" aria-label="닫기">✕</button>
-            <h3 id="copy-fallback-title" class="text-lg font-bold text-slate-800 mb-2">링크를 이렇게 복사해줘</h3>
-            <p class="text-xs text-slate-500 mb-3 leading-relaxed break-keep">
-                일부 핸드폰 브라우저는 버튼 한 번으로 복사가 막혀 있어. 아래 칸을 <strong>길게 눌러</strong> 전체 선택 후 복사하거나, 「복사 다시 시도」를 눌러줘.
-            </p>
-            <textarea id="copy-fallback-text" readonly rows="6" class="w-full text-xs text-slate-700 bg-rose-50/80 border border-rose-100 rounded-xl p-3 mb-3 font-mono break-all resize-none"></textarea>
-            <div class="flex flex-col gap-2">
-                <button type="button" id="copy-fallback-retry" class="w-full py-3 btn-pink text-white rounded-2xl font-bold text-sm">복사 다시 시도</button>
-                <button type="button" id="copy-fallback-close-btn" class="w-full py-3 border-2 border-rose-100 text-rose-400 rounded-2xl font-bold text-sm">닫기</button>
-            </div>
-        </div>
-    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -532,6 +516,7 @@
             } else {
                 owner?.classList.remove('hidden');
                 sharedFooter?.classList.add('hidden');
+                prefetchKakaoSdkForShare();
             }
         };
 
@@ -602,49 +587,39 @@
             }
         };
 
-        function closeCopyFallbackModal() {
-            document.getElementById('copy-fallback-modal')?.classList.remove('active');
-        }
-
-        function openCopyFallbackModal(shareText) {
-            const modal = document.getElementById('copy-fallback-modal');
-            const ta = document.getElementById('copy-fallback-text');
-            if (!modal || !ta) return;
-            ta.value = shareText;
-            modal.classList.add('active');
-            requestAnimationFrame(() => {
-                ta.focus();
-                ta.select();
-                ta.setSelectionRange(0, shareText.length);
-            });
-        }
-
-        document.getElementById('copy-fallback-modal')?.addEventListener('click', closeCopyFallbackModal);
-        document.getElementById('copy-fallback-close-x')?.addEventListener('click', closeCopyFallbackModal);
-        document.getElementById('copy-fallback-close-btn')?.addEventListener('click', closeCopyFallbackModal);
-        document.getElementById('copy-fallback-retry')?.addEventListener('click', () => {
-            const ta = document.getElementById('copy-fallback-text');
-            const text = ta?.value || '';
-            if (!text) return;
-            copyToClipboard(text)
-                .then(() => {
-                    closeCopyFallbackModal();
-                    showToast();
-                })
-                .catch(() => {
-                    showToastMessage('아래 칸을 길게 눌러 직접 복사해줘 📋');
-                });
-        });
+        /** null = 아직 안 받음, '' = 서버에 키 없음 */
+        let kakaoJsKeyCache = null;
 
         async function fetchKakaoJsKey() {
+            if (kakaoJsKeyCache !== null) return kakaoJsKeyCache;
             try {
                 const res = await fetch('/api/kakao/config');
-                if (!res.ok) return '';
+                if (!res.ok) {
+                    kakaoJsKeyCache = '';
+                    return '';
+                }
                 const data = await res.json();
-                return (data.key || '').trim();
+                kakaoJsKeyCache = (data.key || '').trim();
+                return kakaoJsKeyCache;
             } catch {
+                kakaoJsKeyCache = '';
                 return '';
             }
+        }
+
+        /** 결과 화면 진입 시 카카오 키·SDK 미리 로드 → 탭 한 번에 친구 선택까지 빨리 연결 */
+        function prefetchKakaoSdkForShare() {
+            fetchKakaoJsKey()
+                .then((key) => {
+                    if (!key) return null;
+                    return loadKakaoSdk();
+                })
+                .then((Kakao) => {
+                    if (!Kakao) return;
+                    const key = kakaoJsKeyCache;
+                    if (key && !Kakao.isInitialized()) Kakao.init(key);
+                })
+                .catch(() => {});
         }
 
         function loadKakaoSdk() {
@@ -662,7 +637,7 @@
             });
         }
 
-        /** 카카오톡 공유 (키·도메인 설정 시). 성공하면 true */
+        /** 카카오톡 피드 공유 → 친구 선택 (카카오개발자 앱·도메인·KAKAO_JAVASCRIPT_KEY 필요) */
         async function tryShareWithKakao(shareUrl) {
             const key = await fetchKakaoJsKey();
             if (!key) return false;
@@ -707,30 +682,46 @@
             const url = window.location.origin + SHARE_PAGE_PATH + '?r=' + encodeURIComponent(payload);
             const shareText = `${SHARE_CLIPBOARD_INTRO}\n${url}`;
 
+            // ① 카카오 공식 피드 SDK → 친구 선택 (키·사이트 도메인 등록 필요)
             if (await tryShareWithKakao(url)) {
-                showToastMessage('카카오톡에서 친구를 선택해 공유해줘! 💌');
+                showToastMessage('카카오톡에서 친구를 골라 보내줘! 💌');
                 return;
             }
 
+            // ② 시스템 공유 시트에서 카카오톡 선택 (인앱 브라우저에서도 자주 동작)
             if (navigator.share) {
                 try {
                     await navigator.share({
-                        title: '말랑 이별 MBTI',
-                        text: SHARE_CLIPBOARD_INTRO,
-                        url
+                        title: '말랑 이별 MBTI 💔',
+                        text: SHARE_CLIPBOARD_INTRO + '\n',
+                        url,
                     });
-                    showToastMessage('공유 창을 사용했어! 💖');
+                    showToastMessage('목록에서 카카오톡을 골라줘! 💬');
                     return;
                 } catch (err) {
                     if (err && err.name === 'AbortError') return;
+                    try {
+                        await navigator.share({ url });
+                        showToastMessage('카카오톡을 선택해서 보내줘! 💬');
+                        return;
+                    } catch (err2) {
+                        if (err2 && err2.name === 'AbortError') return;
+                    }
                 }
             }
 
-            copyToClipboard(shareText)
-                .then(() => showToast())
-                .catch(() => {
-                    openCopyFallbackModal(shareText);
-                });
+            // ③ 링크만 조용히 복사 (카카오 채팅에 길게 눌러 붙여넣기)
+            try {
+                await copyToClipboard(url);
+                showToastMessage('링크를 복사했어! 카카오톡에 붙여넣기 해줘 📋');
+            } catch {
+                try {
+                    await copyToClipboard(shareText);
+                    showToastMessage('복사했어! 카카오톡에 붙여넣기 해줘 📋');
+                } catch {
+                    showToastMessage('브라우저 메뉴(⋮) → 공유에서 카카오톡을 골라줘');
+                }
+            }
         };
 
         const defaultCopyToastText = document.getElementById('toast').textContent.trim();
