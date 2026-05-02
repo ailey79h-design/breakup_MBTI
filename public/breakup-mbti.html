@@ -170,16 +170,18 @@
         </div>
     </div>
 
-    <!-- 공유용 이미지 카드 (오프스크린·html2canvas) -->
-    <div id="share-card" class="bg-white p-6 rounded-[2rem] shadow-xl text-center space-y-3">
-        <div class="text-xs text-rose-300 font-bold">BREAKUP MBTI</div>
-        <h1 id="card-mbti" class="text-4xl font-black text-rose-500">ERHC</h1>
-        <p id="card-title" class="text-lg font-bold text-slate-700"></p>
-        <p id="card-roast" class="text-sm text-rose-400"></p>
-        <div class="bg-rose-50 p-4 rounded-xl text-sm text-slate-500">
+    <!-- 공유용 이미지 카드 (오프스크린·html2canvas) — 배경은 JS에서 cardThemes 적용 -->
+    <div id="share-card" class="p-6 rounded-[2rem] shadow-xl text-center space-y-3 text-white">
+        <div class="text-xs font-bold uppercase tracking-wider opacity-90">BREAKUP MBTI</div>
+        <div id="card-emoji" class="text-5xl leading-none" aria-hidden="true"></div>
+        <div><span id="card-tag" class="text-[11px] font-bold inline-block px-3 py-1 rounded-full bg-white/25"></span></div>
+        <h1 id="card-mbti" class="text-4xl font-black drop-shadow-sm">ERHC</h1>
+        <p id="card-title" class="text-lg font-bold text-white/95"></p>
+        <p id="card-roast" class="text-sm text-white/90"></p>
+        <div class="bg-white/95 p-4 rounded-xl text-sm text-slate-600 shadow-inner">
             <p id="card-emotion"></p>
         </div>
-        <div class="text-[10px] text-slate-300 mt-2">breakup-mbti.vercel.app</div>
+        <div class="text-[10px] text-white/70 mt-2">breakup-mbti.vercel.app</div>
     </div>
 
     <!-- Type Detail Modal -->
@@ -484,6 +486,89 @@
             ],
         };
 
+        const cardThemes = {
+            ERHC: {
+                bg: "linear-gradient(135deg, #ff6b6b, #ff8787)",
+                emoji: "🔥",
+                tag: "집착 MAX",
+            },
+            ERHA: {
+                bg: "linear-gradient(135deg, #f783ac, #faa2c1)",
+                emoji: "😭",
+                tag: "감정 폭발",
+            },
+            ERLC: {
+                bg: "linear-gradient(135deg, #ff922b, #ffc078)",
+                emoji: "🗯",
+                tag: "말로 끝내야 함",
+            },
+            ERLA: {
+                bg: "linear-gradient(135deg, #845ef7, #9775fa)",
+                emoji: "🍺",
+                tag: "후폭풍형",
+            },
+            ESHC: {
+                bg: "linear-gradient(135deg, #20c997, #38d9a9)",
+                emoji: "🏃",
+                tag: "환승형",
+            },
+            ESHA: {
+                bg: "linear-gradient(135deg, #339af0, #74c0fc)",
+                emoji: "🎉",
+                tag: "인싸 회복형",
+            },
+            ESLC: {
+                bg: "linear-gradient(135deg, #495057, #868e96)",
+                emoji: "❄️",
+                tag: "완전 차단",
+            },
+            ESLA: {
+                bg: "linear-gradient(135deg, #51cf66, #8ce99a)",
+                emoji: "🌿",
+                tag: "긍정 회복형",
+            },
+            IRHC: {
+                bg: "linear-gradient(135deg, #c084fc, #e9d5ff)",
+                emoji: "🎧",
+                tag: "추억 루프",
+            },
+            IRHA: {
+                bg: "linear-gradient(135deg, #6366f1, #a5b4fc)",
+                emoji: "✍️",
+                tag: "새벽 감성",
+            },
+            IRLC: {
+                bg: "linear-gradient(135deg, #0d9488, #5eead4)",
+                emoji: "🌙",
+                tag: "잠수 정리",
+            },
+            IRLA: {
+                bg: "linear-gradient(135deg, #64748b, #94a3b8)",
+                emoji: "🚪",
+                tag: "조용한 회피",
+            },
+            ISHC: {
+                bg: "linear-gradient(135deg, #1e293b, #475569)",
+                emoji: "🗑",
+                tag: "디지털 청소",
+            },
+            ISHA: {
+                bg: "linear-gradient(135deg, #d97706, #fbbf24)",
+                emoji: "📦",
+                tag: "추억 보관",
+            },
+            ISLC: {
+                bg: "linear-gradient(135deg, #2563eb, #93c5fd)",
+                emoji: "📐",
+                tag: "이성 정리",
+            },
+            ISLA: {
+                bg: "linear-gradient(135deg, #6ee7b7, #a7f3d0)",
+                emoji: "☁️",
+                tag: "평온 해탈",
+            },
+        };
+
         const breakupTips = {
             ERHC: {
                 tip: "지금은 상대를 이해하기보다, 스스로를 지키는 것이 먼저입니다.",
@@ -742,6 +827,12 @@
                 document.getElementById('result-sub').innerText = '';
                 roastWrap.classList.add('hidden');
             }
+
+            const theme = cardThemes[mbti] || cardThemes.ERHC;
+            const shareCardEl = document.getElementById('share-card');
+            shareCardEl.style.background = theme.bg;
+            document.getElementById('card-emoji').innerText = theme.emoji;
+            document.getElementById('card-tag').innerText = theme.tag;
 
             document.getElementById('card-mbti').innerText = mbti;
             document.getElementById('card-title').innerText = data.title;
