@@ -57,16 +57,19 @@
     <div id="app-container" class="max-w-md mx-auto min-h-screen flex flex-col relative px-4">
 
         <!-- Header -->
-        <header class="py-6 flex items-center justify-between">
+        <header class="py-6 flex items-center justify-between gap-3">
             <div class="flex items-center gap-1 cursor-pointer" onclick="location.reload()">
                 <span class="text-rose-500 text-xl font-black tracking-tighter">B-TYPE 💖</span>
             </div>
-            <div id="progress-wrapper" class="hidden flex-1 ml-6 flex items-center gap-3">
+            <div id="progress-wrapper" class="hidden flex-1 min-w-0 ml-2 flex items-center gap-3">
                 <div class="progress-bar flex-1">
                     <div id="header-progress" class="progress-fill h-full" style="width: 0%"></div>
                 </div>
                 <span id="progress-text" class="text-[10px] font-bold text-rose-400">0%</span>
             </div>
+            <a href="https://www.instagram.com/ailey79h"
+                class="shrink-0 text-[10px] font-bold text-rose-400 hover:text-rose-500 whitespace-nowrap"
+                onclick="openInstagram(event)">@ailey79h</a>
         </header>
 
         <!-- Home Screen -->
@@ -1176,6 +1179,17 @@
 
         if (!tryOpenSharedFromUrl()) {
             init();
+        }
+    </script>
+    <script>
+        function openInstagram(e) {
+            e.preventDefault();
+            const appUrl = 'instagram://user?username=ailey79h';
+            const webUrl = 'https://www.instagram.com/ailey79h';
+            window.location.href = appUrl;
+            setTimeout(() => {
+                window.open(webUrl, '_blank');
+            }, 800);
         }
     </script>
 </body>
