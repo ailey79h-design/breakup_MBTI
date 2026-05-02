@@ -2,7 +2,7 @@
 HTML 추출 번들 — 말랑 이별 MBTI (public 정적 페이지 전체)
 --------------------------------------------------------------------------------
 • 배포 시 동일 파일은 사이트 루트 기준 /breakup-mbti.html , /index.html 로 제공됩니다.
-• 생성 시각: 2026-05-02T09:34:25.735Z
+• 생성 시각: 2026-05-02T09:42:22.487Z
 ================================================================================
 
 
@@ -118,6 +118,10 @@ HTML 추출 번들 — 말랑 이별 MBTI (public 정적 페이지 전체)
                 <div class="inline-block px-4 py-1 bg-rose-50 text-rose-400 rounded-full text-[10px] font-bold mb-4">LOVE ARCHIVE #RESULTS</div>
                 <h1 id="result-mbti" class="text-6xl font-black text-rose-500 italic mb-2">...</h1>
                 <h2 id="result-title" class="text-2xl font-bold text-slate-700">성향 분석 중</h2>
+                <div id="result-roast-wrap" class="mt-5 px-2 hidden">
+                    <p id="result-roast-line" class="text-[15px] font-bold text-slate-800 leading-snug"></p>
+                    <p id="result-roast-sub" class="text-xs text-slate-400 mt-2 leading-relaxed"></p>
+                </div>
             </div>
 
             <div id="trait-dashboard" class="space-y-4 mb-8 px-2 fade-in" style="animation-delay: 0.2s"></div>
@@ -319,6 +323,74 @@ HTML 추출 번들 — 말랑 이별 MBTI (public 정적 페이지 전체)
             },
         };
 
+        /** 결과 카드 위 한 줄 디스 (+ 서브) — 공유 문구와 별개 */
+        const resultRoast = {
+            ERHC: {
+                line: "읽씹당하면 새벽 3시에 장문 보내는 타입",
+                sub: "‘이건 보내야겠다’ 하고 20줄 씀 → 다음날 후회",
+            },
+            ERHA: {
+                line: "인스타 스토리에 의미심장 글 올리는 타입",
+                sub: "괜찮은 척하는데 다 티 남",
+            },
+            ERLC: {
+                line: "헤어지면서 할 말 다 쏟아내는 타입",
+                sub: "쿨한 척인데 사실 마지막까지 싸움",
+            },
+            ERLA: {
+                line: "술 마시고 전 애인한테 전화 거는 타입",
+                sub: "다음날 통화기록 보고 이불킥",
+            },
+            ESHC: {
+                line: "헤어지자마자 소개팅 잡는 타입",
+                sub: "슬픔을 새 사람으로 덮어버림",
+            },
+            ESHA: {
+                line: "이별 후 갑자기 인싸 되는 타입",
+                sub: "약속 3배 늘고 스토리 폭주",
+            },
+            ESLC: {
+                line: "차단 + 삭제 + 끝내는 타입",
+                sub: "연락? 그런 건 없음",
+            },
+            ESLA: {
+                line: "‘더 좋은 사람 만나겠지’ 바로 회복 타입",
+                sub: "이별을 성장 스토리로 바꿈",
+            },
+            IRHC: {
+                line: "같이 듣던 노래 무한 반복하는 타입",
+                sub: "겉으론 멀쩡, 속으론 이미 뮤비 한 편",
+            },
+            IRHA: {
+                line: "비공개 계정에 긴 글 남기는 타입",
+                sub: "새벽에만 감성 풀충전",
+            },
+            IRLC: {
+                line: "연락 올 때까지 조용히 잠수 타는 타입",
+                sub: "슬픈 건 나만 알면 됨",
+            },
+            IRLA: {
+                line: "연락 오면 읽씹하고 사라지는 타입",
+                sub: "갈등보다 정적 이별을 고름",
+            },
+            ISHC: {
+                line: "헤어지자마자 사진·채팅 싹 비우는 타입",
+                sub: "흔적이 남으면 못 참음",
+            },
+            ISHA: {
+                line: "선물은 서랍 깊숙이 넣어두는 타입",
+                sub: "버리진 않지만 가끔만 꺼내 봄",
+            },
+            ISLC: {
+                line: "논리로 이별 한 줄 정리하는 타입",
+                sub: "‘우린 안 맞았어’면 끝",
+            },
+            ISLA: {
+                line: "슬픈데 안 슬픈 척하는 타입",
+                sub: "묘한 평정심, 나만 아는 공허",
+            },
+        };
+
         const init = async () => {
             if (!auth) return;
             try {
@@ -492,6 +564,16 @@ HTML 추출 번들 — 말랑 이별 MBTI (public 정적 페이지 전체)
             document.getElementById('result-desc').innerText = data.desc;
             document.getElementById('best-match').innerText = data.best;
             document.getElementById('worst-match').innerText = data.worst;
+
+            const roast = resultRoast[mbti];
+            const roastWrap = document.getElementById('result-roast-wrap');
+            if (roast?.line) {
+                roastWrap.classList.remove('hidden');
+                document.getElementById('result-roast-line').innerText = roast.line;
+                document.getElementById('result-roast-sub').innerText = roast.sub || '';
+            } else {
+                roastWrap.classList.add('hidden');
+            }
 
             const traits = [
                 { l: 'E', r: 'I', label: '표현 방식', sl: '감정 발산', sr: '내면 침잠' },
