@@ -171,6 +171,14 @@
         const SHARE_PAGE_PATH = '/breakup-mbti.html';
         /** 링크 공유 시 카톡·복사 미리보기 등에 쓰는 문구 */
         const SHARE_CLIPBOARD_INTRO = '나의 이별 mbti는 이거야, 너는? ';
+        /**
+         * Kakao.sendDefault 피드는 imageUrl + title + description을 **각각** 그립니다.
+         * description에 인트로 문장을 넣으면 썸네일 글씨와 겹쳐 보이고, 줄 바꿈·기기마다 위치가 달라집니다.
+         * 썸네일 JPG에 문구가 있으면 설명은 비우고(또는 한 줄 고정) 이미지를 유일한 카피로 둡니다.
+         */
+        const KAKAO_FEED_TITLE = '말랑 이별 MBTI 💔';
+        /** 빈 문자열: 피드 카드에 긴 설명 블록을 만들지 않음(줄바꿈·기기별 레이아웃 변동 방지). 공유 인트로는 클립보드/Web Share 경로에만 사용 */
+        const KAKAO_FEED_DESCRIPTION = '';
 
         let db, auth, currentUser;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'breakup-mbti-pink';
@@ -648,8 +656,8 @@
                 await Kakao.Share.sendDefault({
                     objectType: 'feed',
                     content: {
-                        title: '말랑 이별 MBTI 💔',
-                        description: SHARE_CLIPBOARD_INTRO.trim(),
+                        title: KAKAO_FEED_TITLE,
+                        description: KAKAO_FEED_DESCRIPTION,
                         imageUrl,
                         link: {
                             mobileWebUrl: shareUrl,
