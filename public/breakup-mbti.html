@@ -143,16 +143,45 @@
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
-                    <div onclick="window.showTypeDetail('best')" class="bg-blue-50 p-5 rounded-[1.5rem] border border-blue-100 text-center cursor-pointer active:scale-95 transition-transform">
-                        <span class="text-[10px] font-bold text-blue-400 uppercase tracking-tighter">환상의 짝꿍 ❤️</span>
-                        <div id="best-match" class="font-black text-blue-600 mt-1 text-lg">-</div>
-                        <span class="text-[8px] text-blue-300">클릭해서 보기</span>
-                    </div>
-                    <div onclick="window.showTypeDetail('worst')" class="bg-rose-50 p-5 rounded-[1.5rem] border border-rose-100 text-center cursor-pointer active:scale-95 transition-transform">
-                        <span class="text-[10px] font-bold text-rose-400 uppercase tracking-tighter">파멸의 조합 💣</span>
-                        <div id="worst-match" class="font-black text-rose-600 mt-1 text-lg">-</div>
-                        <span class="text-[8px] text-rose-300">클릭해서 보기</span>
-                    </div>
+
+                    <button type="button" onclick="window.showTypeDetail('best')"
+                        class="group relative overflow-hidden bg-blue-50 p-5 rounded-[1.5rem] border border-blue-200 text-center transition-all duration-200 hover:scale-[1.03] hover:shadow-lg active:scale-95 cursor-pointer">
+                        <div class="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition bg-blue-100/40 pointer-events-none"></div>
+
+                        <span class="relative z-10 text-[10px] font-bold text-blue-400 uppercase tracking-tighter">
+                            환상의 짝꿍 ❤️
+                        </span>
+
+                        <div id="best-match"
+                            class="relative z-10 font-black text-blue-600 mt-1 text-lg group-hover:underline">
+                            -
+                        </div>
+
+                        <div class="relative z-10 text-[10px] text-blue-400 mt-2 flex items-center justify-center gap-1">
+                            <span>자세히 보기</span>
+                            <span class="transition-transform group-hover:translate-x-1">→</span>
+                        </div>
+                    </button>
+
+                    <button type="button" onclick="window.showTypeDetail('worst')"
+                        class="group relative overflow-hidden bg-rose-50 p-5 rounded-[1.5rem] border border-rose-200 text-center transition-all duration-200 hover:scale-[1.03] hover:shadow-lg active:scale-95 cursor-pointer">
+                        <div class="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition bg-rose-100/40 pointer-events-none"></div>
+
+                        <span class="relative z-10 text-[10px] font-bold text-rose-400 uppercase tracking-tighter">
+                            파멸의 조합 💣
+                        </span>
+
+                        <div id="worst-match"
+                            class="relative z-10 font-black text-rose-600 mt-1 text-lg group-hover:underline">
+                            -
+                        </div>
+
+                        <div class="relative z-10 text-[10px] text-rose-400 mt-2 flex items-center justify-center gap-1">
+                            <span>클릭해서 확인</span>
+                            <span class="transition-transform group-hover:translate-x-1">→</span>
+                        </div>
+                    </button>
+
                 </div>
             </div>
             </div>
