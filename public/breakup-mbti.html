@@ -162,6 +162,22 @@
 
     <div id="toast">복사 완료! 친구에게 보내봐 💖</div>
 
+    <!-- 자동 복사 실패 시(특히 모바일): 길게 눌러 복사 / 재시도 -->
+    <div id="copy-fallback-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="copy-fallback-title">
+        <div class="max-w-sm w-full glass-card p-6 rounded-[2rem] shadow-2xl relative" onclick="event.stopPropagation()">
+            <button type="button" class="absolute top-4 right-4 text-slate-300 text-xl leading-none" id="copy-fallback-close-x" aria-label="닫기">✕</button>
+            <h3 id="copy-fallback-title" class="text-lg font-bold text-slate-800 mb-2">링크를 이렇게 복사해줘</h3>
+            <p class="text-xs text-slate-500 mb-3 leading-relaxed break-keep">
+                일부 핸드폰 브라우저는 버튼 한 번으로 복사가 막혀 있어. 아래 칸을 <strong>길게 눌러</strong> 전체 선택 후 복사하거나, 「복사 다시 시도」를 눌러줘.
+            </p>
+            <textarea id="copy-fallback-text" readonly rows="6" class="w-full text-xs text-slate-700 bg-rose-50/80 border border-rose-100 rounded-xl p-3 mb-3 font-mono break-all resize-none"></textarea>
+            <div class="flex flex-col gap-2">
+                <button type="button" id="copy-fallback-retry" class="w-full py-3 btn-pink text-white rounded-2xl font-bold text-sm">복사 다시 시도</button>
+                <button type="button" id="copy-fallback-close-btn" class="w-full py-3 border-2 border-rose-100 text-rose-400 rounded-2xl font-bold text-sm">닫기</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -567,12 +583,16 @@
             try {
                 const textArea = document.createElement("textarea");
                 textArea.value = text;
+                textArea.setAttribute('readonly', '');
                 textArea.style.position = "fixed";
-                textArea.style.left = "-9999px";
+                textArea.style.left = "0";
                 textArea.style.top = "0";
+                textArea.style.opacity = "0";
+                textArea.style.pointerEvents = "none";
                 document.body.appendChild(textArea);
                 textArea.focus();
                 textArea.select();
+                textArea.setSelectionRange(0, text.length);
                 const successful = document.execCommand('copy');
                 document.body.removeChild(textArea);
                 return successful;
@@ -581,6 +601,40 @@
                 return false;
             }
         };
+
+        function closeCopyFallbackModal() {
+            document.getElementById('copy-fallback-modal')?.classList.remove('active');
+        }
+
+        function openCopyFallbackModal(shareText) {
+            const modal = document.getElementById('copy-fallback-modal');
+            const ta = document.getElementById('copy-fallback-text');
+            if (!modal || !ta) return;
+            ta.value = shareText;
+            modal.classList.add('active');
+            requestAnimationFrame(() => {
+                ta.focus();
+                ta.select();
+                ta.setSelectionRange(0, shareText.length);
+            });
+        }
+
+        document.getElementById('copy-fallback-modal')?.addEventListener('click', closeCopyFallbackModal);
+        document.getElementById('copy-fallback-close-x')?.addEventListener('click', closeCopyFallbackModal);
+        document.getElementById('copy-fallback-close-btn')?.addEventListener('click', closeCopyFallbackModal);
+        document.getElementById('copy-fallback-retry')?.addEventListener('click', () => {
+            const ta = document.getElementById('copy-fallback-text');
+            const text = ta?.value || '';
+            if (!text) return;
+            copyToClipboard(text)
+                .then(() => {
+                    closeCopyFallbackModal();
+                    showToast();
+                })
+                .catch(() => {
+                    showToastMessage('아래 칸을 길게 눌러 직접 복사해줘 📋');
+                });
+        });
 
         async function fetchKakaoJsKey() {
             try {
@@ -675,7 +729,7 @@
             copyToClipboard(shareText)
                 .then(() => showToast())
                 .catch(() => {
-                    prompt("복사 기능이 지원되지 않는 환경입니다. 아래 내용을 직접 복사해주세요!", shareText);
+                    openCopyFallbackModal(shareText);
                 });
         };
 
