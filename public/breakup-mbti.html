@@ -734,9 +734,13 @@
             document.getElementById('modal-type-code').innerText = targetMbti;
             document.getElementById('modal-type-title').innerText = targetData.title;
             document.getElementById('modal-type-tag').innerText = mode === 'best' ? '❤️ 환상의 짝꿍인 이유' : '💣 파멸의 조합인 이유';
-            document.getElementById('modal-type-desc').innerText = (
-                mode === 'best' ? bestMatchDesc(targetData) : worstMatchDesc(targetData)
-            ).trim();
+            let descText;
+            if (mode === 'best') {
+                descText = bestMatchDesc(targetData);
+            } else {
+                descText = worstMatchDesc(targetData);
+            }
+            document.getElementById('modal-type-desc').innerText = descText.trim();
             document.getElementById('type-modal').classList.add('active');
         };
 
