@@ -173,16 +173,13 @@
 
         /** 항상 이 경로로 공유·복귀 (루트 `/`는 쿼리가 유실될 수 있음) */
         const SHARE_PAGE_PATH = '/breakup-mbti.html';
-        /** 링크 공유 시 클립보드·Web Share에 쓸 문구 풀 (매번 무작위 1줄) */
+        /** 링크 공유 시 클립보드·Web Share에 쓸 문구 풀 — 버튼 클릭 시 SHARE_CLIPBOARD_INTRO로 한 줄 선택 */
         const SHARE_LINES = [
             '야 이거 해봐ㅋㅋ 너 100% 이 타입임',
             '이거 해봤는데 너 생각남… 소름임',
             '너 이별하면 이럴 듯ㅋㅋ 인정?',
             '이거 해봐 제발ㅋㅋ 너 결과 궁금함',
         ];
-        function pickShareLine() {
-            return SHARE_LINES[Math.floor(Math.random() * SHARE_LINES.length)];
-        }
         /**
          * Kakao.sendDefault 피드는 imageUrl + title + description을 **각각** 그립니다.
          * description에 인트로 문장을 넣으면 썸네일 글씨와 겹쳐 보이고, 줄 바꿈·기기마다 위치가 달라집니다.
@@ -778,8 +775,9 @@
             }
             const payload = encodeSharePayload(lastMbti, lastScores);
             const url = window.location.origin + SHARE_PAGE_PATH + '?r=' + encodeURIComponent(payload);
-            const intro = pickShareLine();
-            const shareText = `${intro}\n${url}`;
+            const SHARE_CLIPBOARD_INTRO =
+                SHARE_LINES[Math.floor(Math.random() * SHARE_LINES.length)];
+            const shareText = `${SHARE_CLIPBOARD_INTRO}\n${url}`;
 
             // ① 카카오 공식 피드 SDK → 친구 선택 (키·사이트 도메인 등록 필요)
             if (await tryShareWithKakao(url)) {
@@ -792,7 +790,7 @@
                 try {
                     await navigator.share({
                         title: '말랑 이별 MBTI 💔',
-                        text: intro + '\n',
+                        text: SHARE_CLIPBOARD_INTRO + '\n',
                         url,
                     });
                     showToastMessage('목록에서 카카오톡을 골라줘! 💬');
