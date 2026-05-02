@@ -582,14 +582,81 @@
             }
         };
 
+        async function fetchKakaoJsKey() {
+            try {
+                const res = await fetch('/api/kakao/config');
+                if (!res.ok) return '';
+                const data = await res.json();
+                return (data.key || '').trim();
+            } catch {
+                return '';
+            }
+        }
+
+        function loadKakaoSdk() {
+            return new Promise((resolve, reject) => {
+                if (window.Kakao) {
+                    resolve(window.Kakao);
+                    return;
+                }
+                const script = document.createElement('script');
+                script.src = 'https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js';
+                script.crossOrigin = 'anonymous';
+                script.onload = () => resolve(window.Kakao);
+                script.onerror = () => reject(new Error('Kakao SDK load failed'));
+                document.head.appendChild(script);
+            });
+        }
+
+        /** 카카오톡 공유 (키·도메인 설정 시). 성공하면 true */
+        async function tryShareWithKakao(shareUrl) {
+            const key = await fetchKakaoJsKey();
+            if (!key) return false;
+            try {
+                const Kakao = await loadKakaoSdk();
+                if (!Kakao.isInitialized()) Kakao.init(key);
+                const imageUrl = window.location.origin + '/og-image.png';
+                await Kakao.Share.sendDefault({
+                    objectType: 'feed',
+                    content: {
+                        title: '말랑 이별 MBTI 💔',
+                        description: SHARE_CLIPBOARD_INTRO.trim(),
+                        imageUrl,
+                        link: {
+                            mobileWebUrl: shareUrl,
+                            webUrl: shareUrl,
+                        },
+                    },
+                    buttons: [
+                        {
+                            title: '결과 보러가기',
+                            link: {
+                                mobileWebUrl: shareUrl,
+                                webUrl: shareUrl,
+                            },
+                        },
+                    ],
+                });
+                return true;
+            } catch (e) {
+                console.warn('Kakao Share:', e);
+                return false;
+            }
+        }
+
         document.getElementById('share-link-btn').onclick = async () => {
             if (!lastMbti || !lastScores) {
                 showToastMessage('먼저 결과를 확인한 뒤 다시 눌러줘!');
                 return;
             }
-            const r = encodeSharePayload(lastMbti, lastScores);
-            const url = window.location.origin + SHARE_PAGE_PATH + '?r=' + encodeURIComponent(r);
+            const payload = encodeSharePayload(lastMbti, lastScores);
+            const url = window.location.origin + SHARE_PAGE_PATH + '?r=' + encodeURIComponent(payload);
             const shareText = `${SHARE_CLIPBOARD_INTRO}\n${url}`;
+
+            if (await tryShareWithKakao(url)) {
+                showToastMessage('카카오톡에서 친구를 선택해 공유해줘! 💌');
+                return;
+            }
 
             if (navigator.share) {
                 try {
@@ -598,7 +665,7 @@
                         text: SHARE_CLIPBOARD_INTRO,
                         url
                     });
-                    showToast();
+                    showToastMessage('공유 창을 사용했어! 💖');
                     return;
                 } catch (err) {
                     if (err && err.name === 'AbortError') return;
