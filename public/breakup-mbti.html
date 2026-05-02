@@ -891,7 +891,7 @@
             const url = window.location.origin + SHARE_PAGE_PATH + '?r=' + encodeURIComponent(payload);
             const SHARE_CLIPBOARD_INTRO =
                 SHARE_LINES[Math.floor(Math.random() * SHARE_LINES.length)];
-            const shareText = `${SHARE_CLIPBOARD_INTRO}\n${url}`;
+            const shareText = `${SHARE_CLIPBOARD_INTRO} ${url}`;
 
             // ① 카카오 공식 피드 SDK → 친구 선택 (키·사이트 도메인 등록 필요)
             if (await tryShareWithKakao(url)) {
@@ -904,7 +904,7 @@
                 try {
                     await navigator.share({
                         title: '말랑 이별 MBTI 💔',
-                        text: SHARE_CLIPBOARD_INTRO + '\n',
+                        text: SHARE_CLIPBOARD_INTRO,
                         url,
                     });
                     showToastMessage('목록에서 카카오톡을 골라줘! 💬');
