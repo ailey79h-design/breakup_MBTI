@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "extract:html": "node scripts/extract-html.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.487.0",
