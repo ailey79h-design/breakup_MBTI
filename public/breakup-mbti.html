@@ -391,6 +391,74 @@
             },
         };
 
+        /** 감성 한 줄 후보 — 결과마다 배열에서 무작위 1개를 result-sub에 표시 */
+        const emotionalLines = {
+            ERHC: [
+                "끝났다는 건 알겠는데, 왜 끝났는지는 아직도 모르겠어.",
+                "이해가 안 되니까, 마음도 안 끝나.",
+            ],
+            ERHA: [
+                "괜찮은 척 다 했는데, 사실 하나도 안 괜찮았어.",
+                "다 쏟아냈는데도, 왜 더 남아 있는 기분일까.",
+            ],
+            ERLC: [
+                "할 말은 다 했는데, 마음은 하나도 정리가 안 됐어.",
+                "끝낼 때까지 말했는데, 왜 아직도 끝난 느낌이 아니지.",
+            ],
+            ERLA: [
+                "그날은 괜찮았는데, 다음 날 내가 더 싫어졌어.",
+                "잊으려고 한 행동들이, 오히려 더 생각나게 해.",
+            ],
+            ESHC: [
+                "새로운 사람을 만나도, 결국 비슷한 감정에서 멈춰.",
+                "채워지는 건 사람인데, 비어 있는 건 여전히 나야.",
+            ],
+            ESHA: [
+                "사람들 속에 있으면 괜찮은데, 혼자 있으면 다 돌아와.",
+                "웃고 있었는데, 그게 진짜였는지는 잘 모르겠어.",
+            ],
+            ESLC: [
+                "다 지웠는데도, 기억은 왜 안 지워질까.",
+                "연락은 끊었는데, 감정은 아직 연결돼 있어.",
+            ],
+            ESLA: [
+                "나는 괜찮아졌다고 생각했는데, 아직 덜 괜찮았나 봐.",
+                "잘 넘겼다고 믿었는데, 그냥 빨리 덮은 걸 수도 있겠네.",
+            ],
+            IRHC: [
+                "같은 노래만큼, 같은 생각도 계속 돌아와.",
+                "겉으로는 멀쩡한데, 안은 아직 그날에 멈춰 있어.",
+            ],
+            IRHA: [
+                "글로 쓰고 나면 조금 나아진 줄 알았는데, 다음 날 또 다른 문장이 생겨.",
+                "비공개여도 마음은 계속 말하고 있어.",
+            ],
+            IRLC: [
+                "연락이 오면 숨고 싶고, 없으면 허전해.",
+                "나만의 속도로 정리 중이라, 말로는 설명이 잘 안 돼.",
+            ],
+            IRLA: [
+                "말하지 않아도 이미 끝난 줄 알았어.",
+                "피했던 순간들이 나중에 더 길게 남아.",
+            ],
+            ISHC: [
+                "지웠다고 끝난 게 아니라는 걸 알아.",
+                "빈 화면만큼 마음도 비어 보일 때가 있어.",
+            ],
+            ISHA: [
+                "버리지 않은 건 아직 인정받지 못한 마음일지도.",
+                "서랍 속 물건처럼 생각도 한쪽에 남아 있어.",
+            ],
+            ISLC: [
+                "논리로는 답이 나왔는데, 기분은 아직 따라오지 않아.",
+                "맞다고 확신했는데, 왜 목이 멜까.",
+            ],
+            ISLA: [
+                "괜찮다고 말할 때마다 조금씩 멀어지는 느낌.",
+                "평온한 줄 알았는데, 그냥 무뎠던 걸 수도.",
+            ],
+        };
+
         const breakupTips = {
             ERHC: {
                 tip: "지금은 상대를 이해하기보다, 스스로를 지키는 것이 먼저입니다.",
@@ -633,10 +701,16 @@
             document.getElementById('worst-match').innerText = data.worst;
 
             const roast = resultRoast[mbti];
+            const emoLines = emotionalLines[mbti];
             const roastWrap = document.getElementById('result-roast-wrap');
             if (roast) {
                 document.getElementById('result-roast').innerText = roast.line;
-                document.getElementById('result-sub').innerText = roast.sub;
+                if (emoLines?.length) {
+                    document.getElementById('result-sub').innerText =
+                        emoLines[Math.floor(Math.random() * emoLines.length)];
+                } else {
+                    document.getElementById('result-sub').innerText = roast.sub;
+                }
                 roastWrap.classList.remove('hidden');
             } else {
                 document.getElementById('result-roast').innerText = '';
