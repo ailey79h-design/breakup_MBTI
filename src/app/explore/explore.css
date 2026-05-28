@@ -1,0 +1,173 @@
+@import url("https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800&display=swap");
+
+.explore-root {
+  --explore-bg: #fff5f7;
+  --explore-text: #4a5568;
+  --explore-card: rgba(255, 255, 255, 0.9);
+  --explore-border: rgba(251, 113, 133, 0.2);
+  font-family: "Pretendard", system-ui, -apple-system, sans-serif;
+  background-color: var(--explore-bg);
+  color: var(--explore-text);
+  overflow-x: hidden;
+}
+
+.explore-root.dark {
+  --explore-bg: #1a1625;
+  --explore-text: #e2e8f0;
+  --explore-card: rgba(40, 35, 50, 0.92);
+  --explore-border: rgba(251, 113, 133, 0.25);
+}
+
+.explore-root .pink-gradient {
+  background: linear-gradient(135deg, #ffafbd 0%, #ffc3a0 100%);
+}
+
+.explore-root .soft-pink-bg {
+  background-color: #fff0f3;
+}
+
+.explore-root.dark .soft-pink-bg {
+  background-color: rgba(251, 113, 133, 0.12);
+}
+
+.explore-root .glass-card {
+  background: var(--explore-card);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--explore-border);
+}
+
+.explore-root .btn-pink {
+  background: linear-gradient(135deg, #fb7185 0%, #f43f5e 100%);
+}
+
+.explore-root .explore-label-bg {
+  background: var(--explore-card);
+}
+
+.explore-root .progress-bar {
+  height: 6px;
+  background: #ffe4e6;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.explore-root .progress-fill {
+  background: linear-gradient(90deg, #fda4af, #fb7185);
+  height: 100%;
+  border-radius: 10px;
+}
+
+.explore-root .badge-pill {
+  display: inline-block;
+  padding: 0.25rem 1rem;
+  background: #fff1f2;
+  color: #fb7185;
+  border-radius: 9999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.explore-root.dark .badge-pill {
+  background: rgba(251, 113, 133, 0.15);
+  color: #fda4af;
+}
+
+.explore-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(48px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.explore-blob-a {
+  width: 180px;
+  height: 180px;
+  background: rgba(251, 113, 133, 0.25);
+  top: -40px;
+  right: -60px;
+}
+
+.explore-blob-b {
+  width: 140px;
+  height: 140px;
+  background: rgba(255, 175, 189, 0.35);
+  bottom: 120px;
+  left: -50px;
+}
+
+.explore-content {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.explore-root .fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
+.explore-root .fade-in-up {
+  animation: fadeInUp 0.45s ease-out forwards;
+}
+
+.explore-root .fade-in-delay-1 {
+  animation: fadeIn 0.6s ease-out 0.1s forwards;
+  opacity: 0;
+}
+
+.explore-root .fade-in-delay-2 {
+  animation: fadeIn 0.6s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.explore-root .home-icon-bounce {
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.explore-root .menu-card {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.explore-root .menu-card:active {
+  transform: scale(0.96);
+}
+
+.safe-area-pb {
+  padding-bottom: max(2rem, env(safe-area-inset-bottom));
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

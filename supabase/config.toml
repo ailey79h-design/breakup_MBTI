@@ -1,0 +1,39 @@
+# Supabase local / linked project config
+# Hosted: supabase link 후 `npx supabase config push` 로 Auth URL 반영
+
+project_id = "breakup-mbti"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = [
+  "http://localhost:3000/auth/callback",
+  "https://breakup-mbti.vercel.app/auth/callback",
+  "http://localhost:3000/explore",
+  "https://breakup-mbti.vercel.app/explore",
+]
+
+[auth.email]
+enable_signup = true
+double_confirm_changes = false
+enable_confirmations = false
+
+# 게스트(익명) 로그인 — 대시보드와 동기화하려면 config push 또는 setup 스크립트 사용
+[auth.external.anonymous]
+enabled = true

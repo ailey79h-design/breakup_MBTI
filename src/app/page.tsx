@@ -23,5 +23,10 @@ export default async function HomePage({
   if (r) q.set("r", r);
   if (id) q.set("id", id);
   const qs = q.toString();
-  redirect(qs ? `/breakup-mbti.html?${qs}` : "/breakup-mbti.html");
+  // 공유 결과 링크(?r= & ?id=)는 기존 MBTI 페이지로
+  if (qs) {
+    redirect(`/breakup-mbti.html?${qs}`);
+  }
+  // 첫 화면: 랜딩 · 간편 프로필 · 짝궁 찾기
+  redirect("/explore");
 }

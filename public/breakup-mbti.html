@@ -187,6 +187,7 @@
             </div>
 
             <div id="result-owner-actions" class="mt-10 flex flex-col gap-3 pb-10 fade-in" style="animation-delay: 0.6s">
+                <a id="explore-nearby-link" href="/explore?tab=nearby" class="w-full py-4 text-center border-2 border-rose-200 text-rose-500 rounded-3xl font-bold text-sm hidden">근처에서 나의 짝궁 찾기 🗺</a>
                 <button id="share-link-btn" type="button" class="w-full py-5 btn-pink text-white rounded-3xl font-bold shadow-lg shadow-rose-200">카카오톡으로 공유하기</button>
                 <button id="save-image-btn" type="button" class="w-full py-5 bg-black text-white rounded-3xl font-bold">이미지로 저장하기 📸</button>
                 <button id="retest-btn" type="button" class="w-full py-5 border-2 border-rose-100 text-rose-300 rounded-3xl font-bold">다시 테스트하기</button>
@@ -263,6 +264,25 @@
         function buildShareUrl(mbti, scores) {
             const payload = encodeSharePayload(mbti, scores);
             return getShareOrigin() + SHARE_PAGE_PATH + '?r=' + encodeURIComponent(payload);
+        }
+
+        /** 카카오 공유·수신자 클릭용 — 항상 배포 HTTPS URL (제품 링크 관리 도메인과 일치) */
+        function buildKakaoShareUrl(mbti, scores) {
+            const payload = encodeSharePayload(mbti, scores);
+            return PUBLIC_SITE_ORIGIN + SHARE_PAGE_PATH + '?r=' + encodeURIComponent(payload);
+        }
+
+        function normalizeHttpsUrl(url) {
+            const u = String(url || '').trim();
+            if (!u) return PUBLIC_SITE_ORIGIN + SHARE_PAGE_PATH;
+            if (u.startsWith('http://')) return 'https://' + u.slice(7);
+            if (u.startsWith('https://')) return u;
+            return PUBLIC_SITE_ORIGIN + (u.startsWith('/') ? u : '/' + u);
+        }
+
+        function kakaoWebLink(targetUrl) {
+            const href = normalizeHttpsUrl(targetUrl);
+            return { mobileWebUrl: href, webUrl: href };
         }
         /** 링크 공유 시 클립보드·Web Share에 쓸 문구 풀 — 버튼 클릭 시 SHARE_CLIPBOARD_INTRO로 한 줄 선택 */
         const SHARE_LINES = [
@@ -895,6 +915,16 @@
 
             const data = typeData[mbti] || typeData["ENTP"];
             document.getElementById('result-mbti').innerText = mbti;
+            const exploreLink = document.getElementById('explore-nearby-link');
+            if (exploreLink) {
+                exploreLink.href = '/explore?tab=nearby&mbti=' + encodeURIComponent(mbti);
+                exploreLink.classList.remove('hidden');
+            }
+            try {
+                const key = 'breakup_local_profile';
+                const prev = JSON.parse(localStorage.getItem(key) || '{}');
+                localStorage.setItem(key, JSON.stringify({ ...prev, mbti: mbti }));
+            } catch (e) { /* ignore */ }
             document.getElementById('result-title').innerText = data.title;
             document.getElementById('result-desc').innerText = data.desc;
             document.getElementById('best-match').innerText = data.best;
@@ -1164,39 +1194,49 @@
             });
         }
 
-        /** 카카오톡 피드 공유 → 친구 선택 (카카오개발자 앱·도메인·KAKAO_JAVASCRIPT_KEY 필요) */
+        /** 카카오톡 공유 → 클릭 시 이별 MBTI 페이지로 바로 이동 (제품 링크 관리·JS 도메인 등록 필요) */
         async function tryShareWithKakao(shareUrl) {
             const key = await fetchKakaoJsKey();
             if (!key) return { ok: false, reason: 'no_key' };
+            const targetUrl = normalizeHttpsUrl(shareUrl);
+            const link = kakaoWebLink(targetUrl);
             try {
                 const Kakao = await loadKakaoSdk();
                 if (!Kakao.isInitialized()) Kakao.init(key);
-                const imageUrl = KAKAO_OG_IMAGE_URL;
                 if (typeof Kakao.isKakaoTalkSharingAvailable === 'function' && !Kakao.isKakaoTalkSharingAvailable()) {
                     console.warn('Kakao Talk sharing unavailable on this device; sendDefault may use web fallback.');
                 }
+                // 1) 스크랩: 메시지 탭 시 requestUrl(결과 페이지)로 직접 이동
+                try {
+                    await Kakao.Share.sendScrap({ requestUrl: targetUrl });
+                    return { ok: true, method: 'scrap' };
+                } catch (scrapErr) {
+                    console.warn('Kakao sendScrap failed, trying sendDefault:', scrapErr);
+                }
+                // 2) 텍스트 템플릿: 본문·버튼 모두 동일 웹 링크
+                try {
+                    await Kakao.Share.sendDefault({
+                        objectType: 'text',
+                        text: KAKAO_FEED_TITLE + '\n' + KAKAO_FEED_DESCRIPTION,
+                        link,
+                        buttonTitle: '테스트 하러 가기',
+                    });
+                    return { ok: true, method: 'text' };
+                } catch (textErr) {
+                    console.warn('Kakao sendDefault text failed, trying feed:', textErr);
+                }
+                // 3) 피드 템플릿 (폴백)
                 await Kakao.Share.sendDefault({
                     objectType: 'feed',
                     content: {
                         title: KAKAO_FEED_TITLE,
                         description: KAKAO_FEED_DESCRIPTION,
-                        imageUrl,
-                        link: {
-                            mobileWebUrl: shareUrl,
-                            webUrl: shareUrl,
-                        },
+                        imageUrl: KAKAO_OG_IMAGE_URL,
+                        link,
                     },
-                    buttons: [
-                        {
-                            title: '결과 보러가기',
-                            link: {
-                                mobileWebUrl: shareUrl,
-                                webUrl: shareUrl,
-                            },
-                        },
-                    ],
+                    buttons: [{ title: '결과 보러가기', link }],
                 });
-                return { ok: true };
+                return { ok: true, method: 'feed' };
             } catch (e) {
                 console.warn('Kakao Share:', e);
                 return { ok: false, reason: 'sdk_error', detail: e?.message || String(e) };
@@ -1209,12 +1249,13 @@
                 return;
             }
             const url = buildShareUrl(lastMbti, lastScores);
+            const kakaoUrl = buildKakaoShareUrl(lastMbti, lastScores);
             const SHARE_CLIPBOARD_INTRO =
                 SHARE_LINES[Math.floor(Math.random() * SHARE_LINES.length)];
-            const shareText = `${SHARE_CLIPBOARD_INTRO} ${url}`;
+            const shareText = `${SHARE_CLIPBOARD_INTRO} ${kakaoUrl}`;
 
-            // ① 카카오 공식 피드 SDK → 친구 선택 (키·사이트 도메인 등록 필요)
-            const kakaoShare = await tryShareWithKakao(url);
+            // ① 카카오 공식 SDK → 친구 선택 (키·제품 링크 관리 도메인 등록 필요)
+            const kakaoShare = await tryShareWithKakao(kakaoUrl);
             if (kakaoShare.ok) {
                 showToastMessage('카카오톡에서 친구 골라서 보내봐 💌');
                 return;
@@ -1233,14 +1274,14 @@
                     await navigator.share({
                         title: '말랑 이별 MBTI 💔',
                         text: SHARE_CLIPBOARD_INTRO,
-                        url,
+                        url: kakaoUrl,
                     });
                     showToastMessage('목록에서 카카오톡을 골라줘! 💬');
                     return;
                 } catch (err) {
                     if (err && err.name === 'AbortError') return;
                     try {
-                        await navigator.share({ url });
+                        await navigator.share({ url: kakaoUrl });
                         showToastMessage('카카오톡을 선택해서 보내줘! 💬');
                         return;
                     } catch (err2) {
@@ -1251,7 +1292,7 @@
 
             // ③ 링크만 조용히 복사 (카카오 채팅에 길게 눌러 붙여넣기)
             try {
-                await copyToClipboard(url);
+                await copyToClipboard(kakaoUrl);
                 showToastMessage('링크를 복사했어! 카카오톡에 붙여넣기 해줘 📋');
             } catch {
                 try {

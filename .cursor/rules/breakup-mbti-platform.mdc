@@ -1,0 +1,28 @@
+---
+description: 말랑 이별 MBTI 플랫폼 확장 구현 지침 (MBTI 유지, 모바일·Supabase·카카오 공유)
+alwaysApply: true
+---
+
+# 말랑 이별 MBTI — 추가 구현 지침
+
+## 반드시 유지
+- `public/breakup-mbti.html` MBTI 테스트·결과·카카오 공유 로직 삭제·대체 금지
+- 기존 UI 톤: Pretendard, `#fff5f7` 배경, rose/pink 그라데이션, `max-w-md` 모바일 우선
+- 결과 페이지 구조 재사용; 카카오 `sendScrap` / `sendDefault` 경로와 충돌 금지
+
+## 아키텍처
+- TypeScript `strict: true` 유지
+- 컴포넌트 단위 분리 (`src/components/`, `src/features/`)
+- API: `src/app/api/**/route.ts` — Zod 검증 후 Supabase/비즈니스 로직
+- UI 상태: `loading` / `error` / `empty` — `AsyncState` 컴포넌트 사용
+- 환경변수: `.env.local` (Git 제외), Vercel Environment Variables 동기화
+
+## 데이터·위치
+- Supabase 우선 (`src/lib/supabase/`)
+- 위치: 실시간 GPS 스트리밍 금지 → `coarse` 격자(반올림 lat/lng) + `approximateDistanceKm`
+- 추천: `src/lib/recommendations/` 별도 파일, 알고리즘 교체 가능하게
+
+## 기타
+- 인스타그램: `target="_blank" rel="noopener noreferrer"` 외부 링크
+- 광고: `src/lib/ads/placements.ts` 슬롯 ID만 정의, UI는 슬롯 placeholder
+- 서버에서 사용자 입력·MBTI 타입·좌표 검증 후 DB 접근
