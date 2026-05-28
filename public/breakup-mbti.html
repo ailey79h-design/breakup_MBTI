@@ -213,7 +213,7 @@
         style="width: 320px; margin: auto;">
         <div id="card-tag" class="text-[10px] bg-white/20 px-3 py-1 rounded-full inline-block"></div>
         <div id="card-emoji" class="text-4xl" aria-hidden="true"></div>
-        <h1 id="card-mbti" class="text-5xl font-black">ERHC</h1>
+        <h1 id="card-mbti" class="text-5xl font-black">ENTP</h1>
         <p id="card-title" class="text-lg font-bold"></p>
         <p id="card-roast" class="text-sm opacity-90"></p>
         <div class="bg-white/20 p-4 rounded-xl text-sm">
@@ -250,6 +250,20 @@
 
         /** 항상 이 경로로 공유·복귀 (루트 `/`는 쿼리가 유실될 수 있음) */
         const SHARE_PAGE_PATH = '/breakup-mbti.html';
+        /** 카카오 피드 imageUrl·공유 링크용 (localhost 이미지는 카카오 서버가 못 가져옴) */
+        const PUBLIC_SITE_ORIGIN = 'https://breakup-mbti.vercel.app';
+        const KAKAO_OG_IMAGE_URL = PUBLIC_SITE_ORIGIN + '/og-image.jpg?v=3';
+
+        function getShareOrigin() {
+            const host = window.location.hostname;
+            if (host === 'localhost' || host === '127.0.0.1') return PUBLIC_SITE_ORIGIN;
+            return window.location.origin;
+        }
+
+        function buildShareUrl(mbti, scores) {
+            const payload = encodeSharePayload(mbti, scores);
+            return getShareOrigin() + SHARE_PAGE_PATH + '?r=' + encodeURIComponent(payload);
+        }
         /** 링크 공유 시 클립보드·Web Share에 쓸 문구 풀 — 버튼 클릭 시 SHARE_CLIPBOARD_INTRO로 한 줄 선택 */
         const SHARE_LINES = [
             '야 이거 해봐ㅋㅋ 너 100% 이 타입임',
@@ -263,8 +277,8 @@
          * 썸네일 JPG에 문구가 있으면 설명은 비우고(또는 한 줄 고정) 이미지를 유일한 카피로 둡니다.
          */
         const KAKAO_FEED_TITLE = '말랑 이별 MBTI 💔';
-        /** 빈 문자열: 피드 카드에 긴 설명 블록을 만들지 않음(줄바꿈·기기별 레이아웃 변동 방지). 공유 인트로는 클립보드/Web Share 경로에만 사용 */
-        const KAKAO_FEED_DESCRIPTION = '';
+        /** 피드 설명 — 한 줄만(썸네일 JPG에 메인 카피가 있음). 빈 문자열은 SDK/검증 오류가 날 수 있어 최소 문구 유지 */
+        const KAKAO_FEED_DESCRIPTION = '👀 소름… 내 이별 성격 나옴';
 
         let db, auth, currentUser;
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'breakup-mbti-pink';
@@ -281,182 +295,182 @@
         const questions = [
             { id: 1, q: "헤어지면 친구한테 전화해서 욕부터 한다", type: "EI" },
             { id: 2, q: "혼자 있을 때보다 친구들과 떠들 때 이별이 더 잘 잊혀진다.", type: "EI" },
-            { id: 3, q: "자만추든 소개팅이든 새로운 사람을 만나는 게 최고의 치료제다.", type: "RS" },
-            { id: 4, q: "전 애인 인스타 하루에 10번 이상 확인함", type: "HL" },
-            { id: 5, q: "이별 사유를 납득할 때까지 물어보고 대화해야 끝낼 수 있다.", type: "CA" },
-            { id: 6, q: "상대방과 관련된 물건을 버리는 데 아주 오랜 시간이 걸린다.", type: "HL" },
+            { id: 3, q: "자만추든 소개팅이든 새로운 사람을 만나는 게 최고의 치료제다.", type: "NS" },
+            { id: 4, q: "전 애인 인스타 하루에 10번 이상 확인함", type: "TF" },
+            { id: 5, q: "이별 사유를 납득할 때까지 물어보고 대화해야 끝낼 수 있다.", type: "PJ" },
+            { id: 6, q: "상대방과 관련된 물건을 버리는 데 아주 오랜 시간이 걸린다.", type: "TF" },
             { id: 7, q: "힘들 때 밖으로 나가기보단 방 안에서 혼자 침잠하는 편이다.", type: "IE" },
-            { id: 8, q: "조용히 일기를 쓰거나 생각하며 마음을 정리하는 게 편하다.", type: "SR" },
-            { id: 9, q: "헤어지자마자 차단 안 하면 내가 더 힘들다", type: "LH" },
-            { id: 10, q: "이별 상황의 갈등을 마주하기보다 시간이 해결해주길 기다린다.", type: "AC" },
-            { id: 11, q: "아무리 슬퍼도 상황을 논리적으로 분석하려는 습관이 있다.", type: "AC" },
+            { id: 8, q: "조용히 일기를 쓰거나 생각하며 마음을 정리하는 게 편하다.", type: "SN" },
+            { id: 9, q: "헤어지자마자 차단 안 하면 내가 더 힘들다", type: "FT" },
+            { id: 10, q: "이별 상황의 갈등을 마주하기보다 시간이 해결해주길 기다린다.", type: "JP" },
+            { id: 11, q: "아무리 슬퍼도 상황을 논리적으로 분석하려는 습관이 있다.", type: "JP" },
             { id: 12, q: "이별은 내 삶의 모든 에너지를 앗아가서 복구에 한참 걸린다.", type: "EI" }
         ];
 
         const typeData = {
             // [E] 표현형 그룹
-            ERHC: {
+            ENTP: {
                 title: "열정적인 집착 추적자",
                 desc: "이별을 납득할 수 없어 끝까지 이유를 묻는 타입입니다. 감정이 뜨거워 정리가 가장 힘들죠.",
-                best: "IRLA",
-                worst: "ISHA",
+                best: "INFJ",
+                worst: "ISTJ",
             },
-            ERHA: {
+            ENTJ: {
                 title: "폭풍 눈물 피드 도배러",
                 desc: "슬픔을 숨기지 못하고 SNS나 친구들에게 모든 감정을 쏟아냅니다. 위로가 절실한 스타일이에요.",
-                best: "IRLC",
-                worst: "ESLC",
+                best: "INFP",
+                worst: "ESFP",
             },
-            ERLC: {
+            ENFP: {
                 title: "쿨한 척하는 잔소리꾼",
                 desc: "상대에게 마지막으로 할 말은 다 해야 직성이 풀립니다. 쿨해 보이고 싶지만 속은 시끄러워요.",
-                best: "IRHA",
-                worst: "ISLA",
+                best: "INTJ",
+                worst: "ISFJ",
             },
-            ERLA: {
+            ENFJ: {
                 title: "이별 후유증 메이커",
                 desc: "이별 후 친구들과 매일 술을 마시며 잊으려 노력하지만, 다음 날 아침 후회하는 타입입니다.",
-                best: "ISLC",
-                worst: "IRHC",
+                best: "ISFP",
+                worst: "INTP",
             },
-            ESHC: {
+            ESTP: {
                 title: "새로운 사랑 사냥꾼",
                 desc: "슬픔을 새로운 만남으로 잊으려 합니다. 이별 후 가장 빠르게 '환승'이나 소개팅을 시도하죠.",
-                best: "ISHC",
-                worst: "ERLA",
+                best: "ISTP",
+                worst: "ENFJ",
             },
-            ESHA: {
+            ESTJ: {
                 title: "파티 피플 이별러",
                 desc: "이별했으니 이제 자유! 일부러 더 화려하게 꾸미고 밖으로 나가 즐거운 척 에너지를 씁니다.",
-                best: "ISHA",
-                worst: "ERHC",
+                best: "ISTJ",
+                worst: "ENTP",
             },
-            ESLC: {
+            ESFP: {
                 title: "칼 같은 비즈니스 종결자",
                 desc: "정리가 끝나면 남보다 못한 사이. 상대의 연락을 가장 완벽하게 차단하고 일상으로 복귀합니다.",
-                best: "ISLA",
-                worst: "ERHA",
+                best: "ISFJ",
+                worst: "ENTJ",
             },
-            ESLA: {
+            ESFJ: {
                 title: "인싸형 이별 긍정왕",
                 desc: "슬픔도 잠시, '더 좋은 사람 만나겠지!'라며 금방 털고 일어나 주변 사람들에게 에너지를 얻습니다.",
-                best: "ISLC",
-                worst: "ISHC",
+                best: "ISFP",
+                worst: "ISTP",
             },
             // [I] 침잠형 그룹
-            IRHC: {
+            INTP: {
                 title: "혼자만의 추억 미식가",
                 desc: "함께 간 장소, 노래를 무한 반복하며 혼자 깊은 슬픔에 빠집니다. 겉으로는 티가 안 나서 더 아파요.",
-                best: "ERLA",
-                worst: "ESLC",
+                best: "ENFJ",
+                worst: "ESFP",
             },
-            IRHA: {
+            INTJ: {
                 title: "새벽 감성 소설가",
                 desc: "혼자 일기를 쓰거나 비공개 계정에 긴 글을 남기며 마음을 정리합니다. 생각이 아주 많아요.",
-                best: "ERLC",
-                worst: "ESHA",
+                best: "ENFP",
+                worst: "ESTJ",
             },
-            IRLC: {
+            INFP: {
                 title: "조용한 독립형",
                 desc: "이별 후 조용히 잠수 타며 혼자만의 루틴을 되찾습니다. 남에게 슬픈 모습을 보이기 싫어해요.",
-                best: "ERHA",
-                worst: "ESLA",
+                best: "ENTJ",
+                worst: "ESFJ",
             },
-            IRLA: {
+            INFJ: {
                 title: "철벽 방어 회피 만렙",
                 desc: "갈등이 싫어서 조용히 이별을 받아들이고 도망치듯 관계를 정리합니다. 연락 닿기가 가장 힘들죠.",
-                best: "ERHC",
-                worst: "ESHC",
+                best: "ENTP",
+                worst: "ESTP",
             },
-            ISHC: {
+            ISTP: {
                 title: "디지털 장례 지도사",
                 desc: "헤어지자마자 사진, 대화방, 선물부터 완벽하게 삭제합니다. 흔적을 지워야 살 수 있는 타입이에요.",
-                best: "ESHC",
-                worst: "ESLA",
+                best: "ESTP",
+                worst: "ESFJ",
             },
-            ISHA: {
+            ISTJ: {
                 title: "추억 저장 수호자",
                 desc: "옛 연인의 물건을 버리지 못하고 서랍 깊숙이 보관합니다. 가끔 꺼내 보며 혼자 추억여행을 떠나요.",
-                best: "ESHA",
-                worst: "ERHC",
+                best: "ESTJ",
+                worst: "ENTP",
             },
-            ISLC: {
+            ISFP: {
                 title: "쿨한 이성 주의자",
                 desc: "이미 끝난 인연에 에너지를 쓰지 않습니다. 논리적으로 '우린 안 맞아'라고 결론 내리면 끝입니다.",
-                best: "ESLA",
-                worst: "ERLA",
+                best: "ESFJ",
+                worst: "ENFJ",
             },
-            ISLA: {
+            ISFJ: {
                 title: "조용한 해탈 신선",
                 desc: "이별도 삶의 일부라며 덤덤하게 받아들입니다. 슬픈데 안 슬픈 것 같은 묘한 평정심을 유지해요.",
-                best: "ESLC",
-                worst: "ERLC",
+                best: "ESFP",
+                worst: "ENFP",
             },
         };
 
         /** 결과 카드 위 한 줄 디스 (+ 서브) — 공유 문구와 별개 */
         const resultRoast = {
-            ERHC: {
+            ENTP: {
                 line: "읽씹당하면 새벽 3시에 장문 보내는 타입",
                 sub: "‘이건 보내야겠다’ 하고 20줄 씀 → 다음날 후회",
             },
-            ERHA: {
+            ENTJ: {
                 line: "인스타 스토리에 의미심장 글 올리는 타입",
                 sub: "괜찮은 척하는데 다 티 남",
             },
-            ERLC: {
+            ENFP: {
                 line: "헤어지면서 할 말 다 쏟아내는 타입",
                 sub: "쿨한 척인데 사실 마지막까지 싸움",
             },
-            ERLA: {
+            ENFJ: {
                 line: "술 마시고 전 애인한테 전화 거는 타입",
                 sub: "다음날 통화기록 보고 이불킥",
             },
-            ESHC: {
+            ESTP: {
                 line: "헤어지자마자 소개팅 잡는 타입",
                 sub: "슬픔을 새 사람으로 덮어버림",
             },
-            ESHA: {
+            ESTJ: {
                 line: "이별 후 갑자기 인싸 되는 타입",
                 sub: "약속 3배 늘고 스토리 폭주",
             },
-            ESLC: {
+            ESFP: {
                 line: "차단 + 삭제 + 끝내는 타입",
                 sub: "연락? 그런 건 없음",
             },
-            ESLA: {
+            ESFJ: {
                 line: "‘더 좋은 사람 만나겠지’ 바로 회복 타입",
                 sub: "이별을 성장 스토리로 바꿈",
             },
-            IRHC: {
+            INTP: {
                 line: "같이 듣던 노래 무한 반복하는 타입",
                 sub: "겉으론 멀쩡, 속으론 이미 뮤비 한 편",
             },
-            IRHA: {
+            INTJ: {
                 line: "비공개 계정에 긴 글 남기는 타입",
                 sub: "새벽에만 감성 풀충전",
             },
-            IRLC: {
+            INFP: {
                 line: "연락 올 때까지 조용히 잠수 타는 타입",
                 sub: "슬픈 건 나만 알면 됨",
             },
-            IRLA: {
+            INFJ: {
                 line: "연락 오면 읽씹하고 사라지는 타입",
                 sub: "갈등보다 정적 이별을 고름",
             },
-            ISHC: {
+            ISTP: {
                 line: "헤어지자마자 사진·채팅 싹 비우는 타입",
                 sub: "흔적이 남으면 못 참음",
             },
-            ISHA: {
+            ISTJ: {
                 line: "선물은 서랍 깊숙이 넣어두는 타입",
                 sub: "버리진 않지만 가끔만 꺼내 봄",
             },
-            ISLC: {
+            ISFP: {
                 line: "논리로 이별 한 줄 정리하는 타입",
                 sub: "‘우린 안 맞았어’면 끝",
             },
-            ISLA: {
+            ISFJ: {
                 line: "슬픈데 안 슬픈 척하는 타입",
                 sub: "묘한 평정심, 나만 아는 공허",
             },
@@ -464,149 +478,149 @@
 
         /** 감성 한 줄 후보 — 결과마다 배열에서 무작위 1개를 result-sub에 표시 */
         const emotionalLines = {
-            ERHC: [
+            ENTP: [
                 "끝났다는 건 알겠는데, 왜 끝났는지는 아직도 모르겠어.",
                 "이해가 안 되니까, 마음도 안 끝나.",
             ],
-            ERHA: [
+            ENTJ: [
                 "괜찮은 척 다 했는데, 사실 하나도 안 괜찮았어.",
                 "다 쏟아냈는데도, 왜 더 남아 있는 기분일까.",
             ],
-            ERLC: [
+            ENFP: [
                 "할 말은 다 했는데, 마음은 하나도 정리가 안 됐어.",
                 "끝낼 때까지 말했는데, 왜 아직도 끝난 느낌이 아니지.",
             ],
-            ERLA: [
+            ENFJ: [
                 "그날은 괜찮았는데, 다음 날 내가 더 싫어졌어.",
                 "잊으려고 한 행동들이, 오히려 더 생각나게 해.",
             ],
-            ESHC: [
+            ESTP: [
                 "새로운 사람을 만나도, 결국 비슷한 감정에서 멈춰.",
                 "채워지는 건 사람인데, 비어 있는 건 여전히 나야.",
             ],
-            ESHA: [
+            ESTJ: [
                 "사람들 속에 있으면 괜찮은데, 혼자 있으면 다 돌아와.",
                 "웃고 있었는데, 그게 진짜였는지는 잘 모르겠어.",
             ],
-            ESLC: [
+            ESFP: [
                 "다 지웠는데도, 기억은 왜 안 지워질까.",
                 "연락은 끊었는데, 감정은 아직 연결돼 있어.",
             ],
-            ESLA: [
+            ESFJ: [
                 "나는 괜찮아졌다고 생각했는데, 아직 덜 괜찮았나 봐.",
                 "잘 넘겼다고 믿었는데, 그냥 빨리 덮은 걸 수도 있겠네.",
             ],
-            IRHC: [
+            INTP: [
                 "같은 노래만큼, 같은 생각도 계속 돌아와.",
                 "겉으로는 멀쩡한데, 안은 아직 그날에 멈춰 있어.",
             ],
-            IRHA: [
+            INTJ: [
                 "글로 쓰고 나면 조금 나아진 줄 알았는데, 다음 날 또 다른 문장이 생겨.",
                 "비공개여도 마음은 계속 말하고 있어.",
             ],
-            IRLC: [
+            INFP: [
                 "연락이 오면 숨고 싶고, 없으면 허전해.",
                 "나만의 속도로 정리 중이라, 말로는 설명이 잘 안 돼.",
             ],
-            IRLA: [
+            INFJ: [
                 "말하지 않아도 이미 끝난 줄 알았어.",
                 "피했던 순간들이 나중에 더 길게 남아.",
             ],
-            ISHC: [
+            ISTP: [
                 "지웠다고 끝난 게 아니라는 걸 알아.",
                 "빈 화면만큼 마음도 비어 보일 때가 있어.",
             ],
-            ISHA: [
+            ISTJ: [
                 "버리지 않은 건 아직 인정받지 못한 마음일지도.",
                 "서랍 속 물건처럼 생각도 한쪽에 남아 있어.",
             ],
-            ISLC: [
+            ISFP: [
                 "논리로는 답이 나왔는데, 기분은 아직 따라오지 않아.",
                 "맞다고 확신했는데, 왜 목이 멜까.",
             ],
-            ISLA: [
+            ISFJ: [
                 "괜찮다고 말할 때마다 조금씩 멀어지는 느낌.",
                 "평온한 줄 알았는데, 그냥 무뎠던 걸 수도.",
             ],
         };
 
         const cardThemes = {
-            ERHC: {
+            ENTP: {
                 bg: "linear-gradient(135deg, #ff6b6b, #ff8787)",
                 emoji: "🔥",
                 tag: "집착 MAX",
             },
-            ERHA: {
+            ENTJ: {
                 bg: "linear-gradient(135deg, #f783ac, #faa2c1)",
                 emoji: "😭",
                 tag: "감정 폭발",
             },
-            ERLC: {
+            ENFP: {
                 bg: "linear-gradient(135deg, #ff922b, #ffc078)",
                 emoji: "🗯",
                 tag: "말로 끝내야 함",
             },
-            ERLA: {
+            ENFJ: {
                 bg: "linear-gradient(135deg, #845ef7, #9775fa)",
                 emoji: "🍺",
                 tag: "후폭풍형",
             },
-            ESHC: {
+            ESTP: {
                 bg: "linear-gradient(135deg, #20c997, #38d9a9)",
                 emoji: "🏃",
                 tag: "환승형",
             },
-            ESHA: {
+            ESTJ: {
                 bg: "linear-gradient(135deg, #339af0, #74c0fc)",
                 emoji: "🎉",
                 tag: "인싸 회복형",
             },
-            ESLC: {
+            ESFP: {
                 bg: "linear-gradient(135deg, #495057, #868e96)",
                 emoji: "❄️",
                 tag: "완전 차단",
             },
-            ESLA: {
+            ESFJ: {
                 bg: "linear-gradient(135deg, #51cf66, #8ce99a)",
                 emoji: "🌿",
                 tag: "긍정 회복형",
             },
-            IRHC: {
+            INTP: {
                 bg: "linear-gradient(135deg, #c084fc, #e9d5ff)",
                 emoji: "🎧",
                 tag: "추억 루프",
             },
-            IRHA: {
+            INTJ: {
                 bg: "linear-gradient(135deg, #6366f1, #a5b4fc)",
                 emoji: "✍️",
                 tag: "새벽 감성",
             },
-            IRLC: {
+            INFP: {
                 bg: "linear-gradient(135deg, #0d9488, #5eead4)",
                 emoji: "🌙",
                 tag: "잠수 정리",
             },
-            IRLA: {
+            INFJ: {
                 bg: "linear-gradient(135deg, #64748b, #94a3b8)",
                 emoji: "🚪",
                 tag: "조용한 회피",
             },
-            ISHC: {
+            ISTP: {
                 bg: "linear-gradient(135deg, #1e293b, #475569)",
                 emoji: "🗑",
                 tag: "디지털 청소",
             },
-            ISHA: {
+            ISTJ: {
                 bg: "linear-gradient(135deg, #d97706, #fbbf24)",
                 emoji: "📦",
                 tag: "추억 보관",
             },
-            ISLC: {
+            ISFP: {
                 bg: "linear-gradient(135deg, #2563eb, #93c5fd)",
                 emoji: "📐",
                 tag: "이성 정리",
             },
-            ISLA: {
+            ISFJ: {
                 bg: "linear-gradient(135deg, #6ee7b7, #a7f3d0)",
                 emoji: "☁️",
                 tag: "평온 해탈",
@@ -614,67 +628,67 @@
         };
 
         const breakupTips = {
-            ERHC: {
+            ENTP: {
                 tip: "지금은 상대를 이해하기보다, 스스로를 지키는 것이 먼저입니다.",
                 desc: "이유를 찾으려 할수록 감정이 깊어질 수 있습니다. 일정 기간 거리를 두고 생각을 정리해보세요.",
             },
-            ERHA: {
+            ENTJ: {
                 tip: "감정 표현은 좋지만, 표현 방식은 신중히 선택해보시길 바랍니다.",
                 desc: "공개적인 표현보다 신뢰할 수 있는 사람과의 대화가 도움이 됩니다.",
             },
-            ERLC: {
+            ENFP: {
                 tip: "이미 충분히 표현하셨다면, 이제는 멈추는 것이 필요합니다.",
                 desc: "대화를 반복하기보다 정리에 집중하는 것이 회복에 도움이 됩니다.",
             },
-            ERLA: {
+            ENFJ: {
                 tip: "감정을 피하기보다, 환경을 바꾸는 것이 효과적입니다.",
                 desc: "생활 패턴을 조정하며 감정을 안정시키는 것이 중요합니다.",
             },
-            ESHC: {
+            ESTP: {
                 tip: "새로운 관계보다, 현재 감정을 먼저 정리해보시길 바랍니다.",
                 desc: "감정을 충분히 인식하는 과정이 필요합니다.",
             },
-            ESHA: {
+            ESTJ: {
                 tip: "바쁜 일상 속에서도 감정을 돌아보는 시간을 가져보세요.",
                 desc: "짧은 시간이라도 스스로를 점검하는 것이 중요합니다.",
             },
-            ESLC: {
+            ESFP: {
                 tip: "관계뿐 아니라 감정도 함께 정리해보시길 바랍니다.",
                 desc: "감정을 인정하는 것이 더 안정적인 회복으로 이어집니다.",
             },
-            ESLA: {
+            ESFJ: {
                 tip: "빠른 회복 속에서도 감정을 충분히 느껴보시길 바랍니다.",
                 desc: "잠시 멈추는 시간이 더 깊은 회복을 돕습니다.",
             },
-            IRHC: {
+            INTP: {
                 tip: "혼자 정리하는 시간도 소중하지만, 너무 오래 머무르지 않도록 해보세요.",
                 desc: "반복되는 장면을 줄이고 일상에 새로운 리듬을 더하는 것이 도움이 됩니다.",
             },
-            IRHA: {
+            INTJ: {
                 tip: "글로 정리하는 것은 좋습니다. 공개 여부는 하루 정도 숙고해보시길 바랍니다.",
                 desc: "신뢰할 수 있는 소수와 나누는 것도 회복에 도움이 됩니다.",
             },
-            IRLC: {
+            INFP: {
                 tip: "조용히 버티기만 하기보다, 한 명에게라도 마음을 나눠보세요.",
                 desc: "혼자 감당하기 어렵다면 전문가 상담도 고려해볼 수 있습니다.",
             },
-            IRLA: {
+            INFJ: {
                 tip: "갈등을 피하려다 마음이 더 무거워질 수 있습니다.",
                 desc: "짧은 문장이라도 필요한 만큼만 전달하는 연습이 도움이 됩니다.",
             },
-            ISHC: {
+            ISTP: {
                 tip: "정리한 기록과 함께, 지금의 감정도 한 번 살펴보시길 바랍니다.",
                 desc: "행동 정리 이후 감정 정리가 따라올 때 회복이 더 안정됩니다.",
             },
-            ISHA: {
+            ISTJ: {
                 tip: "물건과 추억은 다른 속도로 정리될 수 있습니다.",
                 desc: "서두르지 않고 조금씩 내려놓는 방식도 좋은 선택입니다.",
             },
-            ISLC: {
+            ISFP: {
                 tip: "논리적인 결론과 함께, 느낀 감정도 인정해보시길 바랍니다.",
                 desc: "이성과 감정을 모두 다루면 마음이 더 편안해집니다.",
             },
-            ISLA: {
+            ISFJ: {
                 tip: "평온해 보여도 가끔은 감정을 확인하는 시간이 필요합니다.",
                 desc: "덤덤함 속에서도 스스로를 돌보는 것이 장기적인 안정에 도움이 됩니다.",
             },
@@ -717,7 +731,32 @@
         let lastMbti = null;
         let lastScores = null;
 
-        const SCORE_KEYS = ['E', 'I', 'R', 'S', 'H', 'L', 'C', 'A'];
+        const SCORE_KEYS = ['E', 'I', 'N', 'S', 'T', 'F', 'P', 'J'];
+
+        const LEGACY_AXIS = { R: 'N', S: 'S', H: 'T', L: 'F', C: 'P', A: 'J' };
+
+        function migrateLegacyMbti(code) {
+            const upper = String(code || '').toUpperCase();
+            if (upper.length !== 4) return upper;
+            if (typeData[upper]) return upper;
+            const migrated = upper[0] + LEGACY_AXIS[upper[1]] + LEGACY_AXIS[upper[2]] + LEGACY_AXIS[upper[3]];
+            return typeData[migrated] ? migrated : upper;
+        }
+
+        function migrateLegacyScores(scores) {
+            if (!scores || typeof scores !== 'object') return scores;
+            if ('N' in scores || 'T' in scores || 'P' in scores) return scores;
+            return {
+                E: Number(scores.E) || 0,
+                I: Number(scores.I) || 0,
+                N: Number(scores.R) || 0,
+                S: Number(scores.S) || 0,
+                T: Number(scores.H) || 0,
+                F: Number(scores.L) || 0,
+                P: Number(scores.C) || 0,
+                J: Number(scores.A) || 0,
+            };
+        }
 
         function encodeSharePayload(mbti, scores) {
             const s = {};
@@ -741,12 +780,17 @@
                 const o = JSON.parse(new TextDecoder().decode(bytes));
                 if (!o || typeof o.m !== 'string' || o.m.length !== 4 || !o.s || typeof o.s !== 'object') return null;
                 const out = {};
+                const legacy = !('N' in o.s || 'T' in o.s || 'P' in o.s);
+                if (legacy) {
+                    const migrated = migrateLegacyScores(o.s);
+                    return { m: migrateLegacyMbti(o.m), s: migrated };
+                }
                 for (const k of SCORE_KEYS) {
                     const n = Number(o.s[k]);
                     if (Number.isNaN(n)) return null;
                     out[k] = n;
                 }
-                return { m: o.m.toUpperCase(), s: out };
+                return { m: migrateLegacyMbti(o.m), s: out };
             } catch (e) {
                 return null;
             }
@@ -819,13 +863,13 @@
             document.getElementById('test-screen').classList.add('hidden');
             document.getElementById('loading-screen').classList.remove('hidden');
 
-            let s = { E: 0, I: 0, R: 0, S: 0, H: 0, L: 0, C: 0, A: 0 };
+            let s = { E: 0, I: 0, N: 0, S: 0, T: 0, F: 0, P: 0, J: 0 };
             questions.forEach(q => {
                 const v = answers[q.id] || 0;
                 const [l, r] = q.type.split('');
                 if (v > 0) s[l] += v; else if (v < 0) s[r] += Math.abs(v); else { s[l] += 0.5; s[r] += 0.5; }
             });
-            const mbti = (s.E >= s.I ? "E" : "I") + (s.R >= s.S ? "R" : "S") + (s.H >= s.L ? "H" : "L") + (s.C >= s.A ? "C" : "A");
+            const mbti = (s.E >= s.I ? "E" : "I") + (s.N >= s.S ? "N" : "S") + (s.T >= s.F ? "T" : "F") + (s.P >= s.J ? "P" : "J");
 
             try {
                 if (db && currentUser) {
@@ -841,13 +885,15 @@
 
         const displayResult = (mbti, s, options = {}) => {
             const fromShare = !!options.fromShare;
+            mbti = migrateLegacyMbti(mbti);
+            s = migrateLegacyScores(s);
             lastMbti = mbti;
             lastScores = { ...s };
             document.getElementById('loading-screen').classList.add('hidden');
             document.getElementById('progress-wrapper').classList.add('hidden');
             document.getElementById('result-screen').classList.remove('hidden');
 
-            const data = typeData[mbti] || typeData["ERHC"];
+            const data = typeData[mbti] || typeData["ENTP"];
             document.getElementById('result-mbti').innerText = mbti;
             document.getElementById('result-title').innerText = data.title;
             document.getElementById('result-desc').innerText = data.desc;
@@ -903,9 +949,9 @@
 
             const traits = [
                 { l: 'E', r: 'I', label: '표현 방식', sl: '감정 발산', sr: '내면 침잠' },
-                { l: 'R', r: 'S', label: '극복 방식', sl: '새로운 만남', sr: '혼자만의 시간' },
-                { l: 'H', r: 'L', label: '미련 온도', sl: '뜨거운 집착', sr: '차가운 해탈' },
-                { l: 'C', r: 'A', label: '종결 스타일', sl: '확실한 대화', sr: '조용한 회피' }
+                { l: 'N', r: 'S', label: '극복 방식', sl: '새로운 만남', sr: '혼자만의 시간' },
+                { l: 'T', r: 'F', label: '미련 온도', sl: '뜨거운 집착', sr: '차가운 해탈' },
+                { l: 'P', r: 'J', label: '종결 스타일', sl: '확실한 대화', sr: '조용한 회피' }
             ];
 
             document.getElementById('trait-dashboard').innerHTML = traits.map(t => {
@@ -970,7 +1016,7 @@
 
         window.showTypeDetail = (mode) => {
             const currentMbti = document.getElementById('result-mbti').innerText;
-            const currentData = typeData[currentMbti] || typeData.ERHC;
+            const currentData = typeData[currentMbti] || typeData.ENTP;
             const targetMbti = mode === 'best' ? currentData.best : currentData.worst;
             const targetData = typeData[targetMbti];
 
@@ -1078,6 +1124,9 @@
                 }
                 const data = await res.json();
                 kakaoJsKeyCache = (data.key || '').trim();
+                if (kakaoJsKeyCache && kakaoJsKeyCache.length !== 32) {
+                    console.warn('Kakao JS key length is', kakaoJsKeyCache.length, '(expected 32). Check Vercel env KAKAO_JAVASCRIPT_KEY.');
+                }
                 return kakaoJsKeyCache;
             } catch {
                 kakaoJsKeyCache = '';
@@ -1118,11 +1167,14 @@
         /** 카카오톡 피드 공유 → 친구 선택 (카카오개발자 앱·도메인·KAKAO_JAVASCRIPT_KEY 필요) */
         async function tryShareWithKakao(shareUrl) {
             const key = await fetchKakaoJsKey();
-            if (!key) return false;
+            if (!key) return { ok: false, reason: 'no_key' };
             try {
                 const Kakao = await loadKakaoSdk();
                 if (!Kakao.isInitialized()) Kakao.init(key);
-                const imageUrl = window.location.origin + '/og-image.jpg?v=3';
+                const imageUrl = KAKAO_OG_IMAGE_URL;
+                if (typeof Kakao.isKakaoTalkSharingAvailable === 'function' && !Kakao.isKakaoTalkSharingAvailable()) {
+                    console.warn('Kakao Talk sharing unavailable on this device; sendDefault may use web fallback.');
+                }
                 await Kakao.Share.sendDefault({
                     objectType: 'feed',
                     content: {
@@ -1144,10 +1196,10 @@
                         },
                     ],
                 });
-                return true;
+                return { ok: true };
             } catch (e) {
                 console.warn('Kakao Share:', e);
-                return false;
+                return { ok: false, reason: 'sdk_error', detail: e?.message || String(e) };
             }
         }
 
@@ -1156,16 +1208,23 @@
                 showToastMessage('먼저 결과를 확인한 뒤 다시 눌러줘!');
                 return;
             }
-            const payload = encodeSharePayload(lastMbti, lastScores);
-            const url = window.location.origin + SHARE_PAGE_PATH + '?r=' + encodeURIComponent(payload);
+            const url = buildShareUrl(lastMbti, lastScores);
             const SHARE_CLIPBOARD_INTRO =
                 SHARE_LINES[Math.floor(Math.random() * SHARE_LINES.length)];
             const shareText = `${SHARE_CLIPBOARD_INTRO} ${url}`;
 
             // ① 카카오 공식 피드 SDK → 친구 선택 (키·사이트 도메인 등록 필요)
-            if (await tryShareWithKakao(url)) {
+            const kakaoShare = await tryShareWithKakao(url);
+            if (kakaoShare.ok) {
                 showToastMessage('카카오톡에서 친구 골라서 보내봐 💌');
                 return;
+            }
+            if (kakaoShare.reason === 'no_key') {
+                console.warn('Kakao: KAKAO_JAVASCRIPT_KEY not set on this server (e.g. Vercel env).');
+                showToastMessage('카카오 키가 없거나 잘못됐어요. Vercel 환경변수를 확인해줘 📋');
+            } else if (kakaoShare.reason === 'sdk_error') {
+                console.warn('Kakao SDK:', kakaoShare.detail);
+                showToastMessage('카카오 공유를 열지 못했어요. 카카오 콘솔에 이 사이트 도메인이 등록됐는지 확인해줘');
             }
 
             // ② 시스템 공유 시트에서 카카오톡 선택 (인앱 브라우저에서도 자주 동작)
