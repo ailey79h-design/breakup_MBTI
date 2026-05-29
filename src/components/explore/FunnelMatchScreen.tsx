@@ -152,8 +152,7 @@ export function FunnelMatchScreen({
   const hasResults = funnel.items.length > 0 || hasSectionResults;
 
   return (
-    <>
-      <div className="flex flex-col fade-in pb-24">
+    <div className="flex flex-col fade-in pb-8">
       <div className="text-center mb-6">
         <p className="text-[10px] font-bold text-rose-400 uppercase tracking-wider mb-2">
           FIND YOUR MATCH
@@ -277,19 +276,6 @@ export function FunnelMatchScreen({
           )}
         </AsyncState>
       )}
-      </div>
-
-      <button
-        type="button"
-        onClick={goToResultPage}
-        className="explore-back-btn"
-        aria-label="결과 페이지로 돌아가기"
-      >
-        <span className="explore-back-btn-arrow" aria-hidden>
-          ←
-        </span>
-        결과 페이지로
-      </button>
-    </>
+    </div>
   );
 }

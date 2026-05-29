@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 
 import {
   AgeRangePicker,
@@ -8,6 +8,10 @@ import {
 } from "@/components/explore/AgeRangePicker";
 import { GenderPicker, type GenderValue } from "@/components/explore/GenderPicker";
 import type { LocalProfile } from "@/lib/session/local-profile";
+
+export type QuickProfileFormHandle = {
+  submit: () => void;
+};
 
 type QuickProfileFormProps = {
   initial?: LocalProfile | null;
@@ -22,13 +26,11 @@ type QuickProfileFormProps = {
   }) => void;
 };
 
-export function QuickProfileForm({
-  initial,
-  submitLabel = "저장하기",
-  hideSubmit = false,
-  showTagline = false,
-  onSubmit,
-}: QuickProfileFormProps) {
+export const QuickProfileForm = forwardRef<QuickProfileFormHandle, QuickProfileFormProps>(
+  function QuickProfileForm(
+    { initial, submitLabel = "저장하기", hideSubmit = false, showTagline = false, onSubmit },
+    ref
+  ) {
   const [nickname, setNickname] = useState(initial?.nickname ?? "");
   const [instagramId, setInstagramId] = useState(initial?.instagramId ?? "");
   const [gender, setGender] = useState<GenderValue>((initial?.gender as GenderValue) ?? "");
@@ -50,6 +52,14 @@ export function QuickProfileForm({
       ageRange: ageRange || null,
     });
   };
+
+  useImperativeHandle(ref, () => ({ submit: handleStart }), [
+    nickname,
+    instagramId,
+    gender,
+    ageRange,
+    onSubmit,
+  ]);
 
   const inputClass =
     "mt-1 w-full rounded-2xl border-2 border-rose-100 bg-white/80 px-3 py-3 text-sm font-medium text-slate-700 outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-100 dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-100";
@@ -117,4 +127,5 @@ export function QuickProfileForm({
       )}
     </div>
   );
-}
+  }
+);
