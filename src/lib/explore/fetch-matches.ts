@@ -1,15 +1,10 @@
-import { approximateDistanceKm, formatApproxDistance } from "@/lib/geo/approximate-distance";
+import { approximateDistanceKm } from "@/lib/geo/approximate-distance";
 import { parseGridKey } from "@/lib/geo/coarse-location";
+import { loadExploreProfileRows } from "@/lib/explore/load-explore-profiles";
 import {
   isDisasterMatch,
   isPerfectMatch,
 } from "@/lib/mbtiCompatibility";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import {
-  isMissingColumnError,
-  MATCH_SELECT_EXTENDED,
-  MATCH_SELECT_MINIMAL,
-} from "@/lib/supabase/explore-profiles-db";
 import type { ExploreNearbyRequest, ExploreProfileRow } from "@/lib/validation/explore";
 import type { PublicProfileDto } from "@/lib/validation/profile";
 
@@ -41,35 +36,7 @@ export async function fetchMatches(
   input: ExploreNearbyRequest,
   options?: { excludeUserId?: string | null }
 ): Promise<FetchMatchesResult> {
-  const supabase = createSupabaseAdminClient();
-  if (!supabase) return { items: [], radiusKm: input.radiusKm, matchType: input.matchType };
-
-  let query = supabase
-    .from("explore_profiles")
-    .select(MATCH_SELECT_EXTENDED)
-    .eq("discover_enabled", true)
-    .eq("is_hidden", false)
-    .limit(300);
-
-  if (options?.excludeUserId) {
-    query = query.neq("user_id", options.excludeUserId);
-  }
-
-  const first = await query;
-  let rows: ExploreProfileRow[] = (first.data ?? []) as ExploreProfileRow[];
-  let fetchError = first.error;
-
-  if (fetchError && isMissingColumnError(fetchError)) {
-    let fallback = supabase.from("explore_profiles").select(MATCH_SELECT_MINIMAL).limit(300);
-    if (options?.excludeUserId) {
-      fallback = fallback.neq("user_id", options.excludeUserId);
-    }
-    const second = await fallback;
-    rows = (second.data ?? []) as ExploreProfileRow[];
-    fetchError = second.error;
-  }
-
-  if (fetchError) throw new Error(fetchError.message);
+  const rows = await loadExploreProfileRows({ excludeUserId: options?.excludeUserId });
 
   const viewerMbti = input.mbtiType.toUpperCase();
   const items: PublicProfileDto[] = [];
@@ -112,12 +79,19 @@ export async function fetchMatches(
 
     if (!include) continue;
 
+    const rounded = Math.round(distanceKm * 10) / 10;
     items.push({
       id: row.id,
       displayName: row.display_name,
       mbtiType: target,
       instagramHandle: row.instagram_handle,
-      distanceKm: Math.round(distanceKm * 10) / 10,
+      distanceKm: rounded,
+      distanceLabel:
+        rounded < 0.1
+          ? "0.1km 거리"
+          : rounded < 10
+            ? `${rounded.toFixed(1)}km 거리`
+            : `${Math.round(rounded)}km 거리`,
       matchType,
     });
   }
@@ -136,4 +110,4 @@ export async function fetchMatches(
   };
 }
 
-export { formatApproxDistance };
+export { formatApproxDistance } from "@/lib/geo/approximate-distance";

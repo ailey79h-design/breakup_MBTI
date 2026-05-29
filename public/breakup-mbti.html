@@ -28,6 +28,13 @@
         .pink-gradient { background: linear-gradient(135deg, #ffafbd 0%, #ffc3a0 100%); }
         .soft-pink-bg { background-color: #fff0f3; }
         .btn-pink { background: linear-gradient(135deg, #fb7185 0%, #f43f5e 100%); }
+        .btn-kakao {
+            background: #FEE500;
+            color: #191919;
+            box-shadow: 0 4px 14px rgba(254, 229, 0, 0.35);
+            transition: transform 0.2s ease;
+        }
+        .btn-kakao:active { transform: scale(0.98); }
         .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(251, 113, 133, 0.2); }
         .fade-in { animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
@@ -67,9 +74,6 @@
                 </div>
                 <span id="progress-text" class="text-[10px] font-bold text-rose-400">0%</span>
             </div>
-            <a href="https://www.instagram.com/ailey79h"
-                class="shrink-0 text-[10px] font-bold text-rose-400 hover:text-rose-500 whitespace-nowrap"
-                onclick="openInstagram(event)">@ailey79h</a>
         </header>
 
         <!-- Home Screen -->
@@ -187,8 +191,8 @@
             </div>
 
             <div id="result-owner-actions" class="mt-10 flex flex-col gap-3 pb-10 fade-in" style="animation-delay: 0.6s">
-                <a id="explore-nearby-link" href="/explore?step=matches" class="w-full py-5 btn-pink text-white rounded-3xl font-bold text-lg shadow-lg shadow-rose-200 text-center hidden">근처에서 나의 짝궁 찾기</a>
-                <button id="share-link-btn" type="button" class="w-full py-5 btn-pink text-white rounded-3xl font-bold shadow-lg shadow-rose-200">카카오톡으로 공유하기</button>
+                <a id="explore-nearby-link" href="/explore?step=matches" class="w-full py-5 btn-pink text-white rounded-3xl font-bold text-lg shadow-lg shadow-rose-200 text-center hidden active:scale-[1.03] transition-transform">근처에서 나의 짝궁 찾기</a>
+                <button id="share-link-btn" type="button" class="w-full py-5 btn-kakao rounded-3xl font-bold text-base">💬 카카오톡으로 공유하기</button>
                 <button id="save-image-btn" type="button" class="w-full py-5 bg-black text-white rounded-3xl font-bold">이미지로 저장하기 📸</button>
                 <button id="retest-btn" type="button" class="w-full py-5 border-2 border-rose-100 text-rose-300 rounded-3xl font-bold">다시 테스트하기</button>
             </div>

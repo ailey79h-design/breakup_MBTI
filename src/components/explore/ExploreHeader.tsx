@@ -14,25 +14,15 @@ export function ExploreHeader({ onSignOut }: ExploreHeaderProps) {
       >
         B-TYPE 💖
       </button>
-      <div className="flex items-center gap-2 shrink-0">
-        {onSignOut && (
-          <button
-            type="button"
-            onClick={onSignOut}
-            className="text-[10px] font-bold text-slate-400"
-          >
-            로그아웃
-          </button>
-        )}
-        <a
-          href="https://www.instagram.com/ailey79h"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-[10px] font-bold text-rose-400 hover:text-rose-500 whitespace-nowrap"
+      {onSignOut && (
+        <button
+          type="button"
+          onClick={onSignOut}
+          className="text-[10px] font-bold text-slate-400 shrink-0"
         >
-          @ailey79h
-        </a>
-      </div>
+          로그아웃
+        </button>
+      )}
     </header>
   );
 }

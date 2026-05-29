@@ -40,7 +40,7 @@ export function UserMatchCard({ user }: UserMatchCardProps) {
             {badge.label}
           </span>
           <span className="text-[10px] font-bold text-rose-400">
-            {formatApproxDistance(user.distanceKm)}
+            {user.distanceLabel ?? formatApproxDistance(user.distanceKm)}
           </span>
         </div>
         <p className="text-lg font-bold text-slate-800 dark:text-slate-100">{user.displayName}</p>

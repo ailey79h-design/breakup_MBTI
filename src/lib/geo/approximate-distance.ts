@@ -22,7 +22,7 @@ export function approximateDistanceKm(a: CoarseLocation, b: CoarseLocation): num
 }
 
 export function formatApproxDistance(km: number): string {
-  if (km < 0.1) return "0.1km away";
-  if (km < 10) return `${km.toFixed(1)}km away`;
-  return `${Math.round(km)}km away`;
+  if (km < 0.1) return "0.1km 거리";
+  if (km < 10) return `${km.toFixed(1)}km 거리`;
+  return `${Math.round(km)}km 거리`;
 }

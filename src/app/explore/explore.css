@@ -179,6 +179,44 @@
   display: none;
 }
 
+.explore-root .explore-back-btn {
+  position: fixed;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  bottom: max(1.25rem, env(safe-area-inset-bottom, 0px));
+  right: max(1rem, env(safe-area-inset-right, 0px));
+  border: 2px solid #ffe4e6;
+  border-radius: 9999px;
+  background: #fff8fa;
+  color: #e11d48;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  box-shadow: 0 6px 20px rgba(251, 113, 133, 0.2);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.2s cubic-bezier(0.34, 1.45, 0.64, 1), background 0.2s ease;
+}
+
+@media (min-width: 448px) {
+  .explore-root .explore-back-btn {
+    right: max(1rem, calc((100vw - 28rem) / 2 + 1rem));
+  }
+}
+
+.explore-root .explore-back-btn:active {
+  transform: scale(0.97);
+  background: #fff1f2;
+}
+
+.explore-root .explore-back-btn-arrow {
+  font-size: 1rem;
+  line-height: 1;
+}
+
 /* 성별 / 연령대 — 접힌 트리거 + 바텀시트 */
 .explore-root .picker-field-trigger {
   display: flex;

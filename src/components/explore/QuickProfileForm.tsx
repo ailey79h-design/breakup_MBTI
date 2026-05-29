@@ -12,6 +12,7 @@ import type { LocalProfile } from "@/lib/session/local-profile";
 type QuickProfileFormProps = {
   initial?: LocalProfile | null;
   submitLabel?: string;
+  hideSubmit?: boolean;
   showTagline?: boolean;
   onSubmit: (data: {
     nickname: string;
@@ -24,6 +25,7 @@ type QuickProfileFormProps = {
 export function QuickProfileForm({
   initial,
   submitLabel = "저장하기",
+  hideSubmit = false,
   showTagline = false,
   onSubmit,
 }: QuickProfileFormProps) {
@@ -104,13 +106,15 @@ export function QuickProfileForm({
         <p className="text-[10px] text-center text-rose-500 font-medium">{note}</p>
       )}
 
-      <button
-        type="button"
-        onClick={handleStart}
-        className="w-full py-5 btn-pink text-white rounded-3xl font-bold text-lg shadow-xl shadow-rose-200 active:scale-95 transition-transform"
-      >
-        {submitLabel}
-      </button>
+      {!hideSubmit && (
+        <button
+          type="button"
+          onClick={handleStart}
+          className="w-full py-5 btn-pink text-white rounded-3xl font-bold text-lg shadow-xl shadow-rose-200 active:scale-95 transition-transform"
+        >
+          {submitLabel}
+        </button>
+      )}
     </div>
   );
 }

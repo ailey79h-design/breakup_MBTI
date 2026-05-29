@@ -63,5 +63,7 @@ export type PublicProfileDto = {
   mbtiType: string;
   instagramHandle: string | null;
   distanceKm: number;
+  /** GPS가 아닌 Fallback 추천 시 표시 (예: 다른 지역) */
+  distanceLabel?: string | null;
   matchType: "perfect" | "disaster" | "nearby";
 };
