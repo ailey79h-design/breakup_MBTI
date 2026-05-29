@@ -5,11 +5,11 @@ import {
   saveProfileForUser,
   updatePrivacyForUser,
 } from "@/lib/profile/save-profile";
-import { createSupabaseAuthClient } from "@/lib/supabase/server-auth";
 import { isSupabaseConfigured } from "@/lib/supabase/env";
+import { createSupabaseRouteClient } from "@/lib/supabase/route-handler";
 import { saveProfileSchema, updatePrivacySchema } from "@/lib/validation/profile";
 
-async function requireUser() {
+async function requireUser(request: NextRequest) {
   if (!isSupabaseConfigured()) {
     return {
       error: NextResponse.json(
@@ -19,7 +19,7 @@ async function requireUser() {
     };
   }
 
-  const supabase = await createSupabaseAuthClient();
+  const { supabase, applyCookies } = createSupabaseRouteClient(request);
   if (!supabase) {
     return { error: NextResponse.json({ error: "Supabase 클라이언트 오류" }, { status: 503 }) };
   }
@@ -30,19 +30,26 @@ async function requireUser() {
   } = await supabase.auth.getUser();
 
   if (error || !user) {
-    return { error: NextResponse.json({ error: "로그인이 필요합니다." }, { status: 401 }) };
+    const res = NextResponse.json(
+      {
+        error:
+          "로그인 세션이 없어요. 메인에서 프로필 저장 후 다시 시도하거나 페이지를 새로고침해 주세요.",
+      },
+      { status: 401 }
+    );
+    return { error: applyCookies(res) };
   }
 
-  return { user };
+  return { user, applyCookies };
 }
 
-export async function GET() {
-  const auth = await requireUser();
+export async function GET(request: NextRequest) {
+  const auth = await requireUser(request);
   if ("error" in auth && auth.error) return auth.error;
 
   try {
     const profile = await getProfileByUserId(auth.user.id);
-    return NextResponse.json({ profile });
+    return auth.applyCookies(NextResponse.json({ profile }));
   } catch (e) {
     const message = e instanceof Error ? e.message : "프로필 조회 실패";
     return NextResponse.json({ error: message }, { status: 500 });
@@ -50,7 +57,7 @@ export async function GET() {
 }
 
 export async function PUT(request: NextRequest) {
-  const auth = await requireUser();
+  const auth = await requireUser(request);
   if ("error" in auth && auth.error) return auth.error;
 
   let body: unknown;
@@ -70,7 +77,7 @@ export async function PUT(request: NextRequest) {
 
   try {
     const profile = await saveProfileForUser(auth.user.id, parsed.data);
-    return NextResponse.json({ profile });
+    return auth.applyCookies(NextResponse.json({ profile }));
   } catch (e) {
     const message = e instanceof Error ? e.message : "프로필 저장 실패";
     return NextResponse.json({ error: message }, { status: 500 });
@@ -78,7 +85,7 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
-  const auth = await requireUser();
+  const auth = await requireUser(request);
   if ("error" in auth && auth.error) return auth.error;
 
   let body: unknown;
@@ -98,7 +105,7 @@ export async function PATCH(request: NextRequest) {
 
   try {
     const profile = await updatePrivacyForUser(auth.user.id, parsed.data);
-    return NextResponse.json({ profile });
+    return auth.applyCookies(NextResponse.json({ profile }));
   } catch (e) {
     const message = e instanceof Error ? e.message : "설정 저장 실패";
     return NextResponse.json({ error: message }, { status: 500 });

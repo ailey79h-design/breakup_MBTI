@@ -14,12 +14,24 @@ export function useAnonymousSession() {
     if (!configured) return false;
     try {
       const supabase = createSupabaseBrowserClient();
-      const { data } = await supabase.auth.getSession();
-      if (data.session) return true;
-      const { error } = await supabase.auth.signInAnonymously();
-      if (error) throw error;
-      return true;
-    } catch {
+
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (sessionData.session) return true;
+
+        const { error } = await supabase.auth.signInAnonymously();
+        if (error) {
+          console.warn("[ensureSession] signInAnonymously:", error.message);
+        }
+
+        await new Promise((r) => setTimeout(r, 200));
+        const { data: after } = await supabase.auth.getSession();
+        if (after.session) return true;
+      }
+
+      return false;
+    } catch (e) {
+      console.warn("[ensureSession]", e);
       return false;
     }
   }, [configured]);

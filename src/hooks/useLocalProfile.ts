@@ -14,6 +14,10 @@ import type { ProfileDto } from "@/lib/validation/profile";
 
 export type LocalProfileStatus = "loading" | "ready";
 
+export type ProfileSyncResult =
+  | { ok: true }
+  | { ok: false; message: string };
+
 function mapServerToLocal(dto: ProfileDto): LocalProfile {
   return {
     nickname: dto.displayName,
@@ -68,21 +72,35 @@ export function useLocalProfile() {
       lat: number,
       lng: number,
       opts?: { mbti?: string }
-    ): Promise<boolean> => {
+    ): Promise<ProfileSyncResult> => {
       const local = readLocalProfile();
       if (!local || !hasBasicProfile(local)) {
-        setError("닉네임과 인스타 아이디를 먼저 입력해 주세요.");
-        return false;
+        const message = "닉네임과 인스타 아이디를 먼저 입력해 주세요.";
+        setError(message);
+        return { ok: false, message };
       }
 
-      const mbti = ((opts?.mbti ?? local.mbti) || "ENTP").toUpperCase();
+      const mbti = ((opts?.mbti ?? local.mbti) || "").toUpperCase();
       if (!/^[EI][NS][TF][PJ]$/.test(mbti)) {
-        setError("MBTI 테스트를 먼저 완료해 주세요.");
-        return false;
+        const message = "MBTI 테스트를 먼저 완료해 주세요.";
+        setError(message);
+        return { ok: false, message };
+      }
+
+      if (!configured) {
+        writeLocalProfile({ mbti });
+        setProfile(readLocalProfile());
+        return { ok: true };
       }
 
       setError("");
-      if (configured) await ensureSession();
+      const sessionOk = await ensureSession();
+      if (!sessionOk) {
+        const message =
+          "로그인 연결에 실패했어요. Supabase에서 익명 로그인이 켜져 있는지 확인해 주세요.";
+        setError(message);
+        return { ok: false, message };
+      }
 
       const res = await fetch("/api/profile", {
         method: "PUT",
@@ -100,15 +118,21 @@ export function useLocalProfile() {
         }),
       });
 
-      const data = await res.json();
+      const data = (await res.json()) as { error?: string; profile?: ProfileDto };
       if (!res.ok) {
-        setError(data.error ?? "서버 동기화 실패");
-        return false;
+        const message = data.error ?? "서버 동기화 실패";
+        setError(message);
+        return { ok: false, message };
       }
 
-      const merged = writeLocalProfile(mapServerToLocal(data.profile as ProfileDto));
-      setProfile(merged);
-      return true;
+      if (data.profile) {
+        const merged = writeLocalProfile(mapServerToLocal(data.profile));
+        setProfile(merged);
+      } else {
+        writeLocalProfile({ mbti });
+        setProfile(readLocalProfile());
+      }
+      return { ok: true };
     },
     [configured, ensureSession]
   );

@@ -5,14 +5,30 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { UserMatchCard } from "@/components/explore/UserMatchCard";
 import { AsyncState } from "@/components/ui/AsyncState";
+import { useAnonymousSession } from "@/hooks/useAnonymousSession";
 import { useFunnelRecommendations } from "@/hooks/useFunnelRecommendations";
-import { GeoPositionError, getCurrentPosition } from "@/lib/geo/get-position";
+import type { ProfileSyncResult } from "@/hooks/useLocalProfile";
+import { resolveViewerCoords } from "@/lib/geo/resolve-viewer-coords";
 import type { PublicProfileDto } from "@/lib/validation/profile";
 
 type FunnelMatchScreenProps = {
   mbtiType: string;
-  onSyncLocation: (lat: number, lng: number) => Promise<boolean>;
+  onSyncLocation: (lat: number, lng: number) => Promise<ProfileSyncResult>;
 };
+
+function MatchCardList({ items }: { items: PublicProfileDto[] }) {
+  if (items.length === 0) return null;
+
+  return (
+    <ul className="space-y-3 px-1">
+      {items.map((u) => (
+        <li key={u.id}>
+          <UserMatchCard user={u} />
+        </li>
+      ))}
+    </ul>
+  );
+}
 
 function MatchSection({
   title,
@@ -31,13 +47,7 @@ function MatchSection({
         <p className="text-[10px] font-bold text-rose-400 uppercase tracking-wider">{title}</p>
         <p className="text-xs text-slate-400 mt-1">{subtitle}</p>
       </div>
-      <ul className="space-y-3 px-1">
-        {items.map((u) => (
-          <li key={u.id}>
-            <UserMatchCard user={u} />
-          </li>
-        ))}
-      </ul>
+      <MatchCardList items={items} />
     </section>
   );
 }
@@ -69,6 +79,7 @@ export function FunnelMatchScreen({
   onSyncLocation,
 }: FunnelMatchScreenProps) {
   const router = useRouter();
+  const { configured, ensureSession } = useAnonymousSession();
   const funnel = useFunnelRecommendations();
   const [geoError, setGeoError] = useState("");
   const [locationConsent, setLocationConsent] = useState(false);
@@ -76,6 +87,10 @@ export function FunnelMatchScreen({
   const locationSyncedRef = useRef(false);
   const fetchInFlightRef = useRef(false);
   const [locating, setLocating] = useState(false);
+
+  useEffect(() => {
+    if (configured) void ensureSession();
+  }, [configured, ensureSession]);
 
   const goToResultPage = useCallback(() => {
     if (typeof window !== "undefined" && window.history.length > 1) {
@@ -93,23 +108,26 @@ export function FunnelMatchScreen({
     setGeoError("");
 
     try {
-      const pos = await getCurrentPosition();
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
+      const { coords, warning } = await resolveViewerCoords();
+      const { lat, lng } = coords;
+
+      if (warning) {
+        setGeoError(warning);
+      }
 
       if (!locationSyncedRef.current) {
         const synced = await onSyncLocation(lat, lng);
-        if (!synced) {
-          setGeoError("프로필 동기화에 실패했습니다. 처음 화면에서 정보를 다시 입력해 주세요.");
-          return;
+        if (synced.ok) {
+          locationSyncedRef.current = true;
+        } else if (!warning) {
+          setGeoError(`${synced.message} 위치 기준 추천은 계속 보여드릴게요.`);
         }
-        locationSyncedRef.current = true;
       }
 
       await funnel.search({ mbtiType, lat, lng });
     } catch (e) {
       setGeoError(
-        e instanceof GeoPositionError ? e.message : "위치를 가져오지 못했습니다."
+        e instanceof Error ? e.message : "추천을 불러오지 못했어요. 다시 시도해 주세요."
       );
     } finally {
       fetchInFlightRef.current = false;
@@ -236,13 +254,7 @@ export function FunnelMatchScreen({
             </div>
           )}
 
-          {hasResults && showUnifiedList && (
-            <MatchSection
-              title="테스트 참여자"
-              subtitle="먼저 테스트한 사람들을 만나보세요"
-              items={funnel.items}
-            />
-          )}
+          {hasResults && showUnifiedList && <MatchCardList items={funnel.items} />}
 
           {hasResults && !showUnifiedList && hasSectionResults && (
             <>

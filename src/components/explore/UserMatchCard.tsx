@@ -27,35 +27,45 @@ export function UserMatchCard({ user }: UserMatchCardProps) {
   };
 
   return (
-    <button
-      type="button"
-      onClick={openInstagram}
-      disabled={!handle}
-      className="menu-card w-full text-left glass-card rounded-[1.5rem] p-5 shadow-md shadow-rose-100/40 dark:shadow-none overflow-hidden relative disabled:opacity-60"
-    >
+    <article className="w-full glass-card rounded-[1.5rem] p-5 shadow-md shadow-rose-100/40 dark:shadow-none overflow-hidden relative">
       <div className="absolute inset-0 bg-gradient-to-br from-rose-50/80 to-white/40 dark:from-rose-950/20 dark:to-transparent pointer-events-none" />
       <div className="relative">
         <div className="flex justify-between items-start gap-2 mb-3">
           <span className={`text-[9px] font-bold px-2.5 py-1 rounded-full ${badge.className}`}>
             {badge.label}
           </span>
-          <span className="text-[10px] font-bold text-rose-400">
+          <span className="text-[10px] font-bold text-rose-400 shrink-0">
             {user.distanceLabel ?? formatApproxDistance(user.distanceKm)}
           </span>
         </div>
-        <p className="text-lg font-bold text-slate-800 dark:text-slate-100">{user.displayName}</p>
-        <p className="text-2xl font-black text-rose-500 italic mt-0.5 tracking-tight">
-          {user.mbtiType}
-        </p>
-        {handle ? (
-          <p className="text-sm font-bold text-rose-400 mt-3 flex items-center gap-1">
-            @{handle}
-            <span className="text-rose-300 text-xs">→</span>
-          </p>
-        ) : (
-          <p className="text-xs text-slate-400 mt-3">인스타 미연결</p>
-        )}
+
+        <div className="flex items-center gap-3">
+          <div className="flex-1 min-w-0">
+            <p className="text-lg font-bold text-slate-800 dark:text-slate-100 truncate">
+              {user.displayName}
+            </p>
+            <p className="text-2xl font-black text-rose-500 italic mt-0.5 tracking-tight">
+              {user.mbtiType}
+            </p>
+          </div>
+
+          {handle ? (
+            <button
+              type="button"
+              onClick={openInstagram}
+              className="match-instagram-btn shrink-0 max-w-[10.5rem] truncate"
+              title={`@${handle}`}
+              aria-label={`@${handle} 인스타그램 프로필 보기`}
+            >
+              @{handle}
+            </button>
+          ) : (
+            <span className="text-[10px] font-medium text-slate-400 shrink-0 px-2">
+              인스타 미연결
+            </span>
+          )}
+        </div>
       </div>
-    </button>
+    </article>
   );
 }

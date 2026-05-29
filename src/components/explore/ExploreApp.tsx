@@ -30,7 +30,7 @@ export function ExploreApp({
   const [loggedIn, setLoggedInState] = useState(false);
   const profileFormRef = useRef<QuickProfileFormHandle>(null);
 
-  const { ensureSession } = useAnonymousSession();
+  const { configured, ensureSession } = useAnonymousSession();
   const local = useLocalProfile();
   const { setMbti, saveQuick, syncToServer, profile, hasBasic, error } = local;
 
@@ -72,9 +72,9 @@ export function ExploreApp({
       saveQuick(data);
       setLoggedIn(true);
       setLoggedInState(true);
-      void ensureSession();
+      if (configured) await ensureSession();
     },
-    [saveQuick, ensureSession]
+    [saveQuick, ensureSession, configured]
   );
 
   const handleStartTest = useCallback(() => {
@@ -145,7 +145,10 @@ export function ExploreApp({
       )}
 
       {showMatchScreen && (
-            <FunnelMatchScreen mbtiType={mbtiType} onSyncLocation={syncToServer} />
+            <FunnelMatchScreen
+              mbtiType={mbtiType}
+              onSyncLocation={(lat, lng) => syncToServer(lat, lng, { mbti: mbtiType })}
+            />
       )}
 
       <p className="text-center text-xs text-slate-400 mt-auto pt-8 pb-4">
