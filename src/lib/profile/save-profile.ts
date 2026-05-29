@@ -1,5 +1,10 @@
 import { toCoarseLocation } from "@/lib/geo/coarse-location";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import {
+  isMissingColumnError,
+  PROFILE_SELECT_EXTENDED,
+  PROFILE_SELECT_MINIMAL,
+} from "@/lib/supabase/explore-profiles-db";
 import type {
   ProfileDto,
   SaveProfileInput,
@@ -17,12 +22,9 @@ function mapRow(data: Record<string, unknown>): ProfileDto {
     ageRange: (data.age_range as string | null) ?? null,
     isHidden: Boolean(data.is_hidden),
     discoverEnabled: data.discover_enabled !== false,
-    updatedAt: data.updated_at as string,
+    updatedAt: (data.updated_at as string) ?? new Date().toISOString(),
   };
 }
-
-const SELECT_OWN =
-  "id, display_name, mbti_type, location_grid, instagram_handle, gender, age_range, is_hidden, discover_enabled, updated_at";
 
 export async function saveProfileForUser(
   userId: string,
@@ -32,8 +34,9 @@ export async function saveProfileForUser(
   if (!supabase) throw new Error("Supabase admin client is not configured");
 
   const grid = toCoarseLocation(input.lat, input.lng);
+  const updatedAt = new Date().toISOString();
 
-  const row = {
+  const extendedRow = {
     user_id: userId,
     display_name: input.displayName,
     mbti_type: input.mbtiType,
@@ -45,17 +48,34 @@ export async function saveProfileForUser(
     age_range: input.ageRange ?? null,
     is_hidden: false,
     discover_enabled: true,
-    updated_at: new Date().toISOString(),
+    updated_at: updatedAt,
   };
 
-  const { data, error } = await supabase
+  const minimalRow = {
+    user_id: userId,
+    display_name: input.displayName,
+    mbti_type: input.mbtiType,
+    location_grid: grid.gridKey,
+    instagram_handle: input.instagramHandle || null,
+    updated_at: updatedAt,
+  };
+
+  let result = await supabase
     .from("explore_profiles")
-    .upsert(row, { onConflict: "user_id" })
-    .select(SELECT_OWN)
+    .upsert(extendedRow, { onConflict: "user_id" })
+    .select(PROFILE_SELECT_EXTENDED)
     .single();
 
-  if (error) throw new Error(error.message);
-  return mapRow(data as Record<string, unknown>);
+  if (result.error && isMissingColumnError(result.error)) {
+    result = await supabase
+      .from("explore_profiles")
+      .upsert(minimalRow, { onConflict: "user_id" })
+      .select(PROFILE_SELECT_MINIMAL)
+      .single();
+  }
+
+  if (result.error) throw new Error(result.error.message);
+  return mapRow(result.data as Record<string, unknown>);
 }
 
 export async function updatePrivacyForUser(
@@ -71,28 +91,42 @@ export async function updatePrivacyForUser(
   if (input.isHidden !== undefined) patch.is_hidden = input.isHidden;
   if (input.discoverEnabled !== undefined) patch.discover_enabled = input.discoverEnabled;
 
-  const { data, error } = await supabase
+  let result = await supabase
     .from("explore_profiles")
     .update(patch)
     .eq("user_id", userId)
-    .select(SELECT_OWN)
+    .select(PROFILE_SELECT_EXTENDED)
     .single();
 
-  if (error) throw new Error(error.message);
-  return mapRow(data as Record<string, unknown>);
+  if (result.error && isMissingColumnError(result.error)) {
+    const existing = await getProfileByUserId(userId);
+    if (!existing) throw new Error("프로필을 찾을 수 없습니다.");
+    return existing;
+  }
+
+  if (result.error) throw new Error(result.error.message);
+  return mapRow(result.data as Record<string, unknown>);
 }
 
 export async function getProfileByUserId(userId: string): Promise<ProfileDto | null> {
   const supabase = createSupabaseAdminClient();
   if (!supabase) return null;
 
-  const { data, error } = await supabase
+  let result = await supabase
     .from("explore_profiles")
-    .select(SELECT_OWN)
+    .select(PROFILE_SELECT_EXTENDED)
     .eq("user_id", userId)
     .maybeSingle();
 
-  if (error) throw new Error(error.message);
-  if (!data) return null;
-  return mapRow(data as Record<string, unknown>);
+  if (result.error && isMissingColumnError(result.error)) {
+    result = await supabase
+      .from("explore_profiles")
+      .select(PROFILE_SELECT_MINIMAL)
+      .eq("user_id", userId)
+      .maybeSingle();
+  }
+
+  if (result.error) throw new Error(result.error.message);
+  if (!result.data) return null;
+  return mapRow(result.data as Record<string, unknown>);
 }

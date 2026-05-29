@@ -187,7 +187,7 @@
             </div>
 
             <div id="result-owner-actions" class="mt-10 flex flex-col gap-3 pb-10 fade-in" style="animation-delay: 0.6s">
-                <a id="explore-nearby-link" href="/explore?tab=nearby" class="w-full py-4 text-center border-2 border-rose-200 text-rose-500 rounded-3xl font-bold text-sm hidden">근처에서 나의 짝궁 찾기 🗺</a>
+                <a id="explore-nearby-link" href="/explore?step=matches" class="w-full py-5 btn-pink text-white rounded-3xl font-bold text-lg shadow-lg shadow-rose-200 text-center hidden">근처에서 나의 짝궁 찾기</a>
                 <button id="share-link-btn" type="button" class="w-full py-5 btn-pink text-white rounded-3xl font-bold shadow-lg shadow-rose-200">카카오톡으로 공유하기</button>
                 <button id="save-image-btn" type="button" class="w-full py-5 bg-black text-white rounded-3xl font-bold">이미지로 저장하기 📸</button>
                 <button id="retest-btn" type="button" class="w-full py-5 border-2 border-rose-100 text-rose-300 rounded-3xl font-bold">다시 테스트하기</button>
@@ -917,7 +917,7 @@
             document.getElementById('result-mbti').innerText = mbti;
             const exploreLink = document.getElementById('explore-nearby-link');
             if (exploreLink) {
-                exploreLink.href = '/explore?tab=nearby&mbti=' + encodeURIComponent(mbti);
+                exploreLink.href = '/explore?step=matches&mbti=' + encodeURIComponent(mbti);
                 exploreLink.classList.remove('hidden');
             }
             try {

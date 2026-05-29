@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from "react";
 
+import {
+  AgeRangePicker,
+  type AgeRangeValue,
+} from "@/components/explore/AgeRangePicker";
+import { GenderPicker, type GenderValue } from "@/components/explore/GenderPicker";
 import { AsyncState } from "@/components/ui/AsyncState";
 import { GeoPositionError, getCurrentPosition } from "@/lib/geo/get-position";
 import type { ProfileDto } from "@/lib/validation/profile";
@@ -41,8 +46,10 @@ export function ProfileSaveForm({
   const [displayName, setDisplayName] = useState(initial?.displayName ?? "");
   const [mbtiType, setMbtiType] = useState(initial?.mbtiType ?? defaultMbti ?? "ENTP");
   const [instagram, setInstagram] = useState(initial?.instagramHandle?.replace(/^@/, "") ?? "");
-  const [gender, setGender] = useState(initial?.gender ?? "");
-  const [ageRange, setAgeRange] = useState(initial?.ageRange ?? "");
+  const [gender, setGender] = useState<GenderValue>((initial?.gender as GenderValue) ?? "");
+  const [ageRange, setAgeRange] = useState<AgeRangeValue>(
+    (initial?.ageRange as AgeRangeValue) ?? ""
+  );
   const [locationConsent, setLocationConsent] = useState(false);
   const [locationNote, setLocationNote] = useState("");
   const [saving, setSaving] = useState(false);
@@ -52,8 +59,8 @@ export function ProfileSaveForm({
       setDisplayName(initial.displayName);
       setMbtiType(initial.mbtiType);
       setInstagram(initial.instagramHandle?.replace(/^@/, "") ?? "");
-      setGender(initial.gender ?? "");
-      setAgeRange(initial.ageRange ?? "");
+      setGender((initial.gender as GenderValue) ?? "");
+      setAgeRange((initial.ageRange as AgeRangeValue) ?? "");
     }
   }, [initial]);
 
@@ -140,36 +147,15 @@ export function ProfileSaveForm({
         </select>
       </label>
 
-      <div className="grid grid-cols-2 gap-3">
-        <label className="block">
+      <div className="space-y-3">
+        <div>
           <span className="text-[10px] font-bold text-rose-400">성별 (선택)</span>
-          <select
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-rose-100 dark:border-slate-600 dark:bg-slate-800 px-2 py-2 text-xs"
-          >
-            <option value="">선택 안 함</option>
-            <option value="female">여성</option>
-            <option value="male">남성</option>
-            <option value="other">기타</option>
-            <option value="prefer_not">밝히지 않음</option>
-          </select>
-        </label>
-        <label className="block">
+          <GenderPicker value={gender} onChange={setGender} />
+        </div>
+        <div>
           <span className="text-[10px] font-bold text-rose-400">연령대 (선택)</span>
-          <select
-            value={ageRange}
-            onChange={(e) => setAgeRange(e.target.value)}
-            className="mt-1 w-full rounded-xl border border-rose-100 dark:border-slate-600 dark:bg-slate-800 px-2 py-2 text-xs"
-          >
-            <option value="">선택 안 함</option>
-            <option value="10s">10대</option>
-            <option value="20s">20대</option>
-            <option value="30s">30대</option>
-            <option value="40s">40대</option>
-            <option value="50plus">50+</option>
-          </select>
-        </label>
+          <AgeRangePicker value={ageRange} onChange={setAgeRange} />
+        </div>
       </div>
 
       <label className="flex items-start gap-2 text-xs text-slate-500 leading-relaxed">

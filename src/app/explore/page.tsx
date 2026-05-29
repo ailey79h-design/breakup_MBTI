@@ -1,15 +1,29 @@
-import { Suspense } from "react";
-
 import { ExploreApp } from "@/components/explore/ExploreApp";
 
-export default function ExplorePage() {
+type SearchParamsInput = Promise<Record<string, string | string[] | undefined>>;
+
+function firstParam(
+  sp: Record<string, string | string[] | undefined>,
+  key: string
+): string | undefined {
+  const v = sp[key];
+  if (v === undefined) return undefined;
+  return Array.isArray(v) ? v[0] : v;
+}
+
+export default async function ExplorePage({
+  searchParams,
+}: {
+  searchParams: SearchParamsInput;
+}) {
+  const sp = await searchParams;
+  const step = firstParam(sp, "step");
+  const mbti = firstParam(sp, "mbti")?.toUpperCase();
+
   return (
-    <Suspense
-      fallback={
-        <p className="text-center text-sm text-rose-400 py-20">불러오는 중…</p>
-      }
-    >
-      <ExploreApp />
-    </Suspense>
+    <ExploreApp
+      wantsMatches={step === "matches"}
+      mbtiFromQuery={mbti}
+    />
   );
 }

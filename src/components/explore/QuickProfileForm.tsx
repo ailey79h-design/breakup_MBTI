@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 
+import {
+  AgeRangePicker,
+  type AgeRangeValue,
+} from "@/components/explore/AgeRangePicker";
+import { GenderPicker, type GenderValue } from "@/components/explore/GenderPicker";
 import type { LocalProfile } from "@/lib/session/local-profile";
 
 type QuickProfileFormProps = {
@@ -24,8 +29,10 @@ export function QuickProfileForm({
 }: QuickProfileFormProps) {
   const [nickname, setNickname] = useState(initial?.nickname ?? "");
   const [instagramId, setInstagramId] = useState(initial?.instagramId ?? "");
-  const [gender, setGender] = useState(initial?.gender ?? "");
-  const [ageRange, setAgeRange] = useState(initial?.ageRange ?? "");
+  const [gender, setGender] = useState<GenderValue>((initial?.gender as GenderValue) ?? "");
+  const [ageRange, setAgeRange] = useState<AgeRangeValue>(
+    (initial?.ageRange as AgeRangeValue) ?? ""
+  );
   const [note, setNote] = useState("");
 
   const handleStart = () => {
@@ -46,7 +53,7 @@ export function QuickProfileForm({
     "mt-1 w-full rounded-2xl border-2 border-rose-100 bg-white/80 px-3 py-3 text-sm font-medium text-slate-700 outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-100 dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-100";
 
   return (
-    <div className="glass-card rounded-[2rem] p-6 space-y-4 shadow-lg shadow-rose-100/50 fade-in-delay-2 dark:shadow-none">
+    <div className="glass-card rounded-[2rem] p-6 space-y-4 shadow-lg shadow-rose-100/50 dark:shadow-none">
       {showTagline && (
         <div className="text-center">
           <p className="text-[10px] font-bold text-rose-400 uppercase tracking-wider">
@@ -82,36 +89,15 @@ export function QuickProfileForm({
         </div>
       </label>
 
-      <div className="grid grid-cols-2 gap-3">
-        <label className="block">
+      <div className="space-y-3 pt-1">
+        <div>
           <span className="text-[10px] font-bold text-rose-400">성별 (선택)</span>
-          <select
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-            className={`${inputClass} py-2 text-xs`}
-          >
-            <option value="">선택 안 함</option>
-            <option value="female">여성</option>
-            <option value="male">남성</option>
-            <option value="other">기타</option>
-            <option value="prefer_not">밝히지 않음</option>
-          </select>
-        </label>
-        <label className="block">
+          <GenderPicker value={gender} onChange={setGender} />
+        </div>
+        <div>
           <span className="text-[10px] font-bold text-rose-400">연령대 (선택)</span>
-          <select
-            value={ageRange}
-            onChange={(e) => setAgeRange(e.target.value)}
-            className={`${inputClass} py-2 text-xs`}
-          >
-            <option value="">선택 안 함</option>
-            <option value="10s">10대</option>
-            <option value="20s">20대</option>
-            <option value="30s">30대</option>
-            <option value="40s">40대</option>
-            <option value="50plus">50+</option>
-          </select>
-        </label>
+          <AgeRangePicker value={ageRange} onChange={setAgeRange} />
+        </div>
       </div>
 
       {note && (

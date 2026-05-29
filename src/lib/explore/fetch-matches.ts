@@ -5,6 +5,11 @@ import {
   isPerfectMatch,
 } from "@/lib/mbtiCompatibility";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import {
+  isMissingColumnError,
+  MATCH_SELECT_EXTENDED,
+  MATCH_SELECT_MINIMAL,
+} from "@/lib/supabase/explore-profiles-db";
 import type { ExploreNearbyRequest, ExploreProfileRow } from "@/lib/validation/explore";
 import type { PublicProfileDto } from "@/lib/validation/profile";
 
@@ -41,9 +46,7 @@ export async function fetchMatches(
 
   let query = supabase
     .from("explore_profiles")
-    .select(
-      "id, user_id, display_name, mbti_type, location_grid, instagram_handle, latitude, longitude, is_hidden, discover_enabled"
-    )
+    .select(MATCH_SELECT_EXTENDED)
     .eq("discover_enabled", true)
     .eq("is_hidden", false)
     .limit(300);
@@ -52,13 +55,26 @@ export async function fetchMatches(
     query = query.neq("user_id", options.excludeUserId);
   }
 
-  const { data, error } = await query;
-  if (error) throw new Error(error.message);
+  const first = await query;
+  let rows: ExploreProfileRow[] = (first.data ?? []) as ExploreProfileRow[];
+  let fetchError = first.error;
+
+  if (fetchError && isMissingColumnError(fetchError)) {
+    let fallback = supabase.from("explore_profiles").select(MATCH_SELECT_MINIMAL).limit(300);
+    if (options?.excludeUserId) {
+      fallback = fallback.neq("user_id", options.excludeUserId);
+    }
+    const second = await fallback;
+    rows = (second.data ?? []) as ExploreProfileRow[];
+    fetchError = second.error;
+  }
+
+  if (fetchError) throw new Error(fetchError.message);
 
   const viewerMbti = input.mbtiType.toUpperCase();
   const items: PublicProfileDto[] = [];
 
-  for (const row of (data ?? []) as ExploreProfileRow[]) {
+  for (const row of rows) {
     const coords = getCoords(row, input.lat, input.lng);
     if (!coords) continue;
 

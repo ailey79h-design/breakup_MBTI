@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "extract:html": "node scripts/extract-html.mjs"
+    "extract:html": "node scripts/extract-html.mjs",
+    "db:patch": "node scripts/apply-schema-patch.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.3",
@@ -22,6 +23,7 @@
     "@tailwindcss/postcss": "^4.1.4",
     "@types/node": "^22.14.1",
     "@types/react": "^19.1.2",
+    "pg": "^8.21.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^4.1.4",
     "typescript": "^5.8.3"
