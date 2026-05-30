@@ -1,4 +1,4 @@
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { createSupabaseReadClient } from "@/lib/supabase/read-client";
 import {
   isMissingColumnError,
   MATCH_SELECT_EXTENDED,
@@ -10,7 +10,7 @@ export async function loadExploreProfileRows(options?: {
   excludeUserId?: string | null;
   limit?: number;
 }): Promise<ExploreProfileRow[]> {
-  const supabase = createSupabaseAdminClient();
+  const supabase = createSupabaseReadClient();
   if (!supabase) return [];
 
   const limit = options?.limit ?? 300;

@@ -1,5 +1,7 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 import { toCoarseLocation } from "@/lib/geo/coarse-location";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { createSupabaseReadClient } from "@/lib/supabase/read-client";
 import {
   isMissingColumnError,
   PROFILE_SELECT_EXTENDED,
@@ -28,10 +30,9 @@ function mapRow(data: Record<string, unknown>): ProfileDto {
 
 export async function saveProfileForUser(
   userId: string,
-  input: SaveProfileInput
+  input: SaveProfileInput,
+  supabase: SupabaseClient
 ): Promise<ProfileDto> {
-  const supabase = createSupabaseAdminClient();
-  if (!supabase) throw new Error("Supabase admin client is not configured");
 
   const grid = toCoarseLocation(input.lat, input.lng);
   const updatedAt = new Date().toISOString();
@@ -80,10 +81,9 @@ export async function saveProfileForUser(
 
 export async function updatePrivacyForUser(
   userId: string,
-  input: UpdatePrivacyInput
+  input: UpdatePrivacyInput,
+  supabase: SupabaseClient
 ): Promise<ProfileDto> {
-  const supabase = createSupabaseAdminClient();
-  if (!supabase) throw new Error("Supabase admin client is not configured");
 
   const patch: Record<string, unknown> = {
     updated_at: new Date().toISOString(),
@@ -109,7 +109,7 @@ export async function updatePrivacyForUser(
 }
 
 export async function getProfileByUserId(userId: string): Promise<ProfileDto | null> {
-  const supabase = createSupabaseAdminClient();
+  const supabase = createSupabaseReadClient();
   if (!supabase) return null;
 
   let result = await supabase

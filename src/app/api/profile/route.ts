@@ -40,7 +40,7 @@ async function requireUser(request: NextRequest) {
     return { error: applyCookies(res) };
   }
 
-  return { user, applyCookies };
+  return { user, supabase, applyCookies };
 }
 
 export async function GET(request: NextRequest) {
@@ -76,7 +76,7 @@ export async function PUT(request: NextRequest) {
   }
 
   try {
-    const profile = await saveProfileForUser(auth.user.id, parsed.data);
+    const profile = await saveProfileForUser(auth.user.id, parsed.data, auth.supabase);
     return auth.applyCookies(NextResponse.json({ profile }));
   } catch (e) {
     const message = e instanceof Error ? e.message : "프로필 저장 실패";
@@ -104,7 +104,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   try {
-    const profile = await updatePrivacyForUser(auth.user.id, parsed.data);
+    const profile = await updatePrivacyForUser(auth.user.id, parsed.data, auth.supabase);
     return auth.applyCookies(NextResponse.json({ profile }));
   } catch (e) {
     const message = e instanceof Error ? e.message : "설정 저장 실패";
